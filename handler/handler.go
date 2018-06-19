@@ -9,5 +9,5 @@ type (
 )
 
 const (
-	Key = "Secret"
+	Key = "secret"
 )
