@@ -18,6 +18,16 @@ func main() {
 	// Middleware
 	e.Use(middleware.Logger())
 	e.Use(middleware.Recover())
+	// XSRF Token
+	e.Use(middleware.CSRFWithConfig(middleware.CSRFConfig{
+		TokenLookup: "header:X-XSRF-TOKEN",
+	}))
+	// CORS WhiteList
+	e.Use(middleware.CORSWithConfig(middleware.CORSConfig{
+		AllowOrigins: []string{
+			"http://localhost:3000",
+		},
+	}))
 
 	// Database connection
 	db, err := mgo.Dial("localhost")
@@ -41,7 +51,7 @@ func main() {
 	e.GET("/", func(c echo.Context) error {
 		return c.String(http.StatusOK, "Hello, Something!\n")
 	}) // 인덱스
-	e.POST("/signup", h.SignUp) // 회원 가입
+	e.POST("/signup/", h.SignUp) // 회원 가입
 
 	// Start server
 	e.Logger.Fatal(e.Start(":1323"))
