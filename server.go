@@ -62,6 +62,7 @@ func main() {
 		return c.String(http.StatusOK, "Hello, Something!\n")
 	}) // 인덱스
 	e.POST("/signup/", h.SignUp) // 회원 가입
+	e.GET("/activate/", h.Activate) // 이메일 회원 활성화
 
 	// Start server
 	e.Logger.Fatal(e.Start(":1323"))

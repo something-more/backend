@@ -13,6 +13,7 @@ import (
 	"path/filepath"
 	"crypto/sha256"
 	"encoding/hex"
+	"github.com/globalsign/mgo"
 )
 
 type Account struct {
@@ -113,4 +114,33 @@ func (h *Handler) SignUp(c echo.Context) (err error) {
 	go SendActivationEmail(info, u.Email) // go routine 을 사용한 비동기 처리
 
 	return c.JSON(http.StatusCreated, u)
+}
+
+func (h *Handler) Activate(c echo.Context) (err error) {
+	// Object bind
+	// Signup 과 달리 비어 있는 객체를 생성
+	u := new(model.User)
+	if err = c.Bind(u); err != nil {
+		return
+	}
+
+	// Find user
+	db := h.DB.Clone()
+	defer db.Close()
+	if err = db.DB("st_more").C("users").
+		Find(bson.M{"email": u.Email}).One(u); err != nil {
+		if err == mgo.ErrNotFound {
+			return &echo.HTTPError{
+				Code:    http.StatusUnauthorized,
+				Message: "이메일이 올바르지 않습니다",
+			}
+			return
+		}
+	}
+
+	// Active user
+	u.IsActive = true
+
+	// 메인 페이지로 리다이렉트
+	return c.Redirect(http.StatusMovedPermanently, "http://localhost:3000")
 }
