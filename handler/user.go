@@ -1,19 +1,22 @@
 package handler
 
 import (
-	"github.com/labstack/echo"
-	"github.com/backend/model"
-	"github.com/globalsign/mgo/bson"
-	"net/http"
+	// Default package
 	"os"
 	"fmt"
-	"io/ioutil"
-	"encoding/json"
+	"net/http"
 	"net/smtp"
 	"path/filepath"
 	"crypto/sha256"
+	"io/ioutil"
+	"encoding/json"
 	"encoding/hex"
+	// Third-party package
+	"github.com/labstack/echo"
 	"github.com/globalsign/mgo"
+	"github.com/globalsign/mgo/bson"
+	// User package
+	"github.com/backend/model"
 )
 
 type Account struct {
