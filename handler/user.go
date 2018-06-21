@@ -11,6 +11,8 @@ import (
 	"encoding/json"
 	"net/smtp"
 	"path/filepath"
+	"crypto/sha256"
+	"encoding/hex"
 )
 
 type Account struct {
@@ -65,6 +67,16 @@ func SendActivationEmail(a Account, t string) {
 	}
 }
 
+func HashPassword(p string) string {
+	// 패스워드를 SHA-256 알고리즘으로 암호화
+	// string 타입인 rawPassword 를 byte 배열에 삽입
+	rawPassword := []byte(p)
+	// SHA-256 알고리즘으로 Hash
+	sum := sha256.Sum256(rawPassword)
+	// sum 배열 요소 전체를 호출해 string 타입으로 변경
+	return hex.EncodeToString(sum[:])
+}
+
 func (h *Handler) SignUp(c echo.Context) (err error) {
 	// Object bind
 	u := &model.User{ID: bson.NewObjectId()}
@@ -83,9 +95,11 @@ func (h *Handler) SignUp(c echo.Context) (err error) {
 		}
 	}
 
-	// Sending Email
-	info := ReadSecretJson()
-	go SendActivationEmail(info, u.Email) // go routine 을 사용한 비동기 처리
+	// Hash Password
+	newPassword := HashPassword(u.Password)
+
+	// hash 된 패스워드를 원래 자리에 대입
+	u.Password = newPassword
 
 	// Save user
 	db := h.DB.Clone()
@@ -93,6 +107,10 @@ func (h *Handler) SignUp(c echo.Context) (err error) {
 	if err = db.DB("st_more").C("users").Insert(u); err != nil {
 		return
 	}
+
+	// Sending Email
+	info := ReadSecretJson()
+	go SendActivationEmail(info, u.Email) // go routine 을 사용한 비동기 처리
 
 	return c.JSON(http.StatusCreated, u)
 }
