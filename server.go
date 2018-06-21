@@ -18,15 +18,25 @@ func main() {
 	// Middleware
 	e.Use(middleware.Logger())
 	e.Use(middleware.Recover())
-	// XSRF Token
-	e.Use(middleware.CSRFWithConfig(middleware.CSRFConfig{
-		TokenLookup: "header:X-XSRF-TOKEN",
-	}))
-	// CORS WhiteList
+	//CORS WhiteList
 	e.Use(middleware.CORSWithConfig(middleware.CORSConfig{
 		AllowOrigins: []string{
 			"http://localhost:3000",
 		},
+		AllowHeaders: []string{
+			echo.HeaderOrigin,
+			echo.HeaderAccept,
+			echo.HeaderContentType,
+			echo.HeaderXRequestedWith,
+			"X-XSRF-TOKEN",
+		},
+		AllowCredentials: true,
+	}))
+	// XSRF Token
+	e.Use(middleware.CSRFWithConfig(middleware.CSRFConfig{
+		TokenLookup: "header:X-XSRF-TOKEN",
+		ContextKey: "csrftoken",
+		CookieName: "csrftoken",
 	}))
 
 	// Database connection
