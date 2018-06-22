@@ -168,8 +168,10 @@ func (h *Handler) Login(c echo.Context) (err error) {
 	if err = db.DB("st_more").C("users").
 		Find(bson.M{"email": u.Email, "password": comparePassword}).One(u); err != nil {
 		if err == mgo.ErrNotFound {
-			return &echo.HTTPError{Code: http.StatusUnauthorized,
-				Message: "이메일이나 패스워드가 올바르지 않습니다"}
+			return &echo.HTTPError{
+				Code: http.StatusUnauthorized,
+				Message: "이메일이나 패스워드가 올바르지 않습니다",
+			}
 		}
 		return
 	}
