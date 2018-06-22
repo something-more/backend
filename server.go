@@ -1,6 +1,7 @@
 package main
 
 import (
+	// Default package
 	"net/http"
 	// Third Party package
 	"github.com/labstack/echo"
@@ -15,7 +16,10 @@ func main() {
 	// Echo instance
 	e := echo.New()
 
+	//-----------
 	// Middleware
+	//-----------
+
 	e.Use(middleware.Logger())
 	e.Use(middleware.Recover())
 	//CORS WhiteList
@@ -38,6 +42,23 @@ func main() {
 		ContextKey: "csrftoken",
 		CookieName: "csrftoken",
 	}))
+	// JWT
+	e.Use(middleware.JWTWithConfig(middleware.JWTConfig{
+		SigningKey: []byte(handler.Key), // "secret"
+		Skipper: func(c echo.Context) bool {
+			// 로그인, 회원가입, 회원 활성화의 경우 authentication 을 건너뛴다
+			if c.Path() == "/signup/" ||
+				c.Path() == "/login/" ||
+				c.Path() == "/activate/" {
+				return true
+			}
+			return false
+		},
+	}))
+
+	//-----------
+	// Databases
+	//-----------
 
 	// Database connection
 	db, err := mgo.Dial("localhost")
@@ -53,6 +74,10 @@ func main() {
 	}); err != nil {
 		log.Fatal(err)
 	}
+
+	//---------------
+	// Route & Server
+	//---------------
 
 	// Initialize handler
 	h := &handler.Handler{DB: db}
