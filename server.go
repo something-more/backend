@@ -63,6 +63,7 @@ func main() {
 	}) // 인덱스
 	e.POST("/signup/", h.SignUp) // 회원 가입
 	e.GET("/activate/", h.Activate) // 이메일 회원 활성화
+	e.POST("/login/", h.Login) // 로그인
 
 	// Start server
 	e.Logger.Fatal(e.Start(":1323"))

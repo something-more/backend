@@ -147,3 +147,30 @@ func (h *Handler) Activate(c echo.Context) (err error) {
 	// 메인 페이지로 리다이렉트
 	return c.Redirect(http.StatusMovedPermanently, "http://localhost:3000")
 }
+
+func (h *Handler) Login(c echo.Context) (err error) {
+	// Object bind
+	// 비어 있는 객체 생성
+	u := new(model.User)
+	if err = c.Bind(u); err != nil {
+		return
+	}
+
+	// Hash password
+	// 로그인 시 입력한 패스워드를 해쉬해서 DB 안에 있는 패스워드와 비교한다
+	comparePassword := HashPassword(u.Password)
+
+	// Find user
+	db := h.DB.Clone()
+	defer db.Close()
+	if err = db.DB("st_more").C("users").
+		Find(bson.M{"email": u.Email, "password": comparePassword}).One(u); err != nil {
+		if err == mgo.ErrNotFound {
+			return &echo.HTTPError{Code: http.StatusUnauthorized,
+				Message: "이메일이나 패스워드가 올바르지 않습니다"}
+		}
+		return
+	}
+	u.Password = "" // Don't send password
+	return c.JSON(http.StatusOK, u)
+}
