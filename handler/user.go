@@ -236,6 +236,8 @@ func (h *Handler) SignIn(c echo.Context) (err error) {
 	claims["id"] = u.ID
 	claims["email"] = u.Email
 	claims["isActive"] = u.IsActive
+	claims["isStaff"] = u.IsStaff
+	claims["isAdmin"] = u.IsAdmin
 	claims["exp"] = time.Now().Add(time.Hour * 72).Unix() // 토큰 유효시간: 72시간
 
 	// 토큰 인코딩 및 response 에 추가하기
