@@ -150,7 +150,7 @@ func (h *Handler) Activate(c echo.Context) (err error) {
 	return c.Redirect(http.StatusMovedPermanently, "http://localhost:3000")
 }
 
-func (h *Handler) Login(c echo.Context) (err error) {
+func (h *Handler) SignIn(c echo.Context) (err error) {
 	// Object bind
 	// 비어 있는 객체 생성
 	u := new(model.User)

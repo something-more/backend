@@ -47,8 +47,8 @@ func main() {
 		SigningKey: []byte(handler.Key), // "secret"
 		Skipper: func(c echo.Context) bool {
 			// 로그인, 회원가입, 회원 활성화의 경우 authentication 을 건너뛴다
-			if c.Path() == "/signup/" ||
-				c.Path() == "/login/" ||
+			if c.Path() == "/sign-up/" ||
+				c.Path() == "/sign-in/" ||
 				c.Path() == "/activate/" {
 				return true
 			}
@@ -85,10 +85,10 @@ func main() {
 	// Route
 	e.GET("/", func(c echo.Context) error {
 		return c.String(http.StatusOK, "Hello, Something!\n")
-	}) // 인덱스
-	e.POST("/signup/", h.SignUp) // 회원 가입
+	})                              // 인덱스
+	e.POST("/sign-up/", h.SignUp)    // 회원 가입
 	e.GET("/activate/", h.Activate) // 이메일 회원 활성화
-	e.POST("/login/", h.Login) // 로그인
+	e.POST("/sign-in/", h.SignIn)     // 로그인
 
 	// Start server
 	e.Logger.Fatal(e.Start(":1323"))
