@@ -100,6 +100,13 @@ func (h *Handler) CreateUser(u *model.User) (err error) {
 	db := h.DB.Clone()
 	defer db.Close()
 	if err = db.DB("st_more").C("users").Insert(u); err != nil {
+		// 만일 발생한 오류가 중복 오류라면 400 에러를 발생시킨다
+		if mgo.IsDup(err) {
+			return &echo.HTTPError{
+				Code: http.StatusBadRequest,
+				Message: "이메일이 이미 존재합니다",
+			}
+		}
 		return
 	}
 	return
