@@ -46,8 +46,10 @@ func main() {
 	e.Use(middleware.JWTWithConfig(middleware.JWTConfig{
 		SigningKey: []byte(handler.Key), // "secret"
 		Skipper: func(c echo.Context) bool {
-			// 로그인, 회원가입, 회원 활성화의 경우 authentication 을 건너뛴다
-			if c.Path() == "/sign-up/" ||
+			// 인증 메서드의 경우 authentication 을 건너뛴다
+			if c.Path() == "/" ||
+				c.Path() == "/admin/" ||
+				c.Path() == "/sign-up/" ||
 				c.Path() == "/sign-in/" ||
 				c.Path() == "/activate/" {
 				return true
@@ -85,10 +87,11 @@ func main() {
 	// Route
 	e.GET("/", func(c echo.Context) error {
 		return c.String(http.StatusOK, "Hello, Something!\n")
-	})                              // 인덱스
-	e.POST("/sign-up/", h.SignUp)    // 회원 가입
-	e.GET("/activate/", h.Activate) // 이메일 회원 활성화
-	e.POST("/sign-in/", h.SignIn)     // 로그인
+	})                                  // 인덱스
+	e.POST("/sign-up/", h.SignUpNormal) // 회원 가입
+	e.POST("/admin/", h.SignUpAdmin) // 관리자 회원 가입
+	e.GET("/activate/", h.Activate)     // 이메일 회원 활성화
+	e.POST("/sign-in/", h.SignIn)       // 로그인
 
 	// Start server
 	e.Logger.Fatal(e.Start(":1323"))
