@@ -83,7 +83,29 @@ func HashPassword(p string) string {
 	return hex.EncodeToString(sum[:])
 }
 
-func (h *Handler) SignUp(c echo.Context) (err error) {
+func (h *Handler) CreateUser(u *model.User) (err error) {
+	// 회원 생성 메소드
+	// Validation
+	if u.Email == "" || u.Password == "" {
+		return &echo.HTTPError{
+			Code:    http.StatusBadRequest,
+			Message: "이메일이나 패스워드가 입력되지 않았습니다",
+		}
+	}
+
+	// 패스워드 해쉬 후 저장
+	newPassword := HashPassword(u.Password)
+	u.Password = newPassword
+
+	db := h.DB.Clone()
+	defer db.Close()
+	if err = db.DB("st_more").C("users").Insert(u); err != nil {
+		return
+	}
+	return
+}
+
+func (h *Handler) SignUpNormal(c echo.Context) (err error) {
 	// Object bind
 	u := &model.User{ID: bson.NewObjectId()}
 	// Go 언어의 간단한 조건식:
@@ -93,30 +115,46 @@ func (h *Handler) SignUp(c echo.Context) (err error) {
 		return
 	}
 
-	// Validate
-	if u.Email == "" || u.Password == "" {
-		return &echo.HTTPError{
-			Code:    http.StatusBadRequest,
-			Message: "이메일이나 패스워드가 입력되지 않았습니다",
-		}
-	}
-
-	// Hash Password
-	newPassword := HashPassword(u.Password)
-
-	// hash 된 패스워드를 원래 자리에 대입
-	u.Password = newPassword
-
-	// Save user
-	db := h.DB.Clone()
-	defer db.Close() // defer: 특정 문장이나 함수를 나중에 실행하게 해 줌
-	if err = db.DB("st_more").C("users").Insert(u); err != nil {
+	// CreateUser 실행 시 에러 핸들링
+	if err = h.CreateUser(u); err != nil {
 		return
 	}
 
 	// Sending Email
 	info := ReadSecretJson()
 	go SendActivationEmail(info, u.Email) // go routine 을 사용한 비동기 처리
+
+	return c.JSON(http.StatusCreated, u)
+}
+
+func (h *Handler) SignUpAdmin(c echo.Context) (err error) {
+	// Object bind
+	u := &model.User{ID: bson.NewObjectId()}
+	// Go 언어의 간단한 조건식:
+	// 조건문 이전에 반드시 실행되는 구문을 세미콜론으로 구분해
+	// if 문 안에서 실행하도록 한다
+	if err = c.Bind(u); err != nil {
+		return
+	}
+
+	// CreateUser 실행 시 에러 핸들링
+	if err = h.CreateUser(u); err != nil {
+		return
+	}
+
+	// 권한 부여
+	db := h.DB.Clone()
+	defer db.Close()
+	if err = db.DB("st_more").C("users").
+		Update(
+			bson.M{"_id": u.ID},
+			bson.M{"$set":
+				bson.M{
+					"is_active": true,
+					"is_staff": true,
+					"is_admin": true}}); err != nil {
+			return
+	}
 
 	return c.JSON(http.StatusCreated, u)
 }
