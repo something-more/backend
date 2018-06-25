@@ -34,6 +34,7 @@ func (h * Handler) CreateStory(c echo.Context) (err error) {
 	// Add FormValue in Story Instance
 	s.Title = c.FormValue("title")
 	s.Content = c.FormValue("content")
+	s.DateCreated = c.FormValue("date_created")
 
 	// Find user
 	db := h.DB.Clone()
