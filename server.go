@@ -25,22 +25,21 @@ func main() {
 	//CORS WhiteList
 	e.Use(middleware.CORSWithConfig(middleware.CORSConfig{
 		AllowOrigins: []string{
-			"http://localhost:3000",
+			"http://localhost:3000", // master 에서는 변경할 것
 		},
 		AllowHeaders: []string{
 			echo.HeaderOrigin,
 			echo.HeaderAccept,
 			echo.HeaderContentType,
 			echo.HeaderXRequestedWith,
-			"X-XSRF-TOKEN",
+			echo.HeaderXCSRFToken,
 		},
 		AllowCredentials: true,
 	}))
 	// XSRF Token
 	e.Use(middleware.CSRFWithConfig(middleware.CSRFConfig{
-		TokenLookup: "header:X-XSRF-TOKEN",
-		ContextKey: "csrftoken",
-		CookieName: "csrftoken",
+		CookieSecure:	false, // master 에서는 변경할 것
+		CookieHTTPOnly: false, // master 에서는 변경할 것
 	}))
 	// JWT
 	e.Use(middleware.JWTWithConfig(middleware.JWTConfig{
