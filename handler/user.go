@@ -250,3 +250,10 @@ func (h *Handler) SignIn(c echo.Context) (err error) {
 	// 최종적으로는 암호화된 토큰만 전송한다
 	return c.JSON(http.StatusOK, u.Token)
 }
+
+func userIDFromToken(c echo.Context) string {
+	// 다른 메서드 안에서 JWT 를 통해 DB 상의 ID 를 꺼내오는 헬퍼 함수
+	user := c.Get("user").(*jwt.Token)
+	claims := user.Claims.(jwt.MapClaims)
+	return claims["id"].(string)
+}
