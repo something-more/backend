@@ -23,13 +23,17 @@ func (h * Handler) CreateStory(c echo.Context) (err error) {
 	}
 
 	// Validation
-	if s.Title == "" || s.Content == "" {
+	if c.FormValue("title") == "" || c.FormValue("content") == "" {
 		return &echo.HTTPError{
 			Code: http.StatusBadRequest,
 			Message: "제목이나 내용을 반드시 입력해야 합니다",
 		}
 		return
 	}
+
+	// Add FormValue in Story Instance
+	s.Title = c.FormValue("title")
+	s.Content = c.FormValue("content")
 
 	// Find user
 	db := h.DB.Clone()
