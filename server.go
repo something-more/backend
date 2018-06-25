@@ -33,6 +33,7 @@ func main() {
 			echo.HeaderContentType,
 			echo.HeaderXRequestedWith,
 			echo.HeaderXCSRFToken,
+			echo.HeaderAuthorization,
 		},
 		AllowCredentials: true,
 	}))
