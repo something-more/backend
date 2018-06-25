@@ -94,6 +94,7 @@ func main() {
 	e.POST("/sign-in/", h.SignIn)       // 로그인
 
 	e.POST("/story/", h.CreateStory) // 스토리 생성
+	e.GET("/story/", h.ListStory) // 스토리 리스트
 
 
 	// Start server

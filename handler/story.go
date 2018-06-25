@@ -1,11 +1,15 @@
 package handler
 
 import (
-	"github.com/labstack/echo"
-	"github.com/backend/model"
-	"github.com/globalsign/mgo/bson"
+	// Default package
+	"strconv"
 	"net/http"
+	// Third Party package
+	"github.com/labstack/echo"
 	"github.com/globalsign/mgo"
+	"github.com/globalsign/mgo/bson"
+	// User package
+	"github.com/backend/model"
 )
 
 func (h * Handler) CreateStory(c echo.Context) (err error) {
@@ -51,4 +55,34 @@ func (h * Handler) CreateStory(c echo.Context) (err error) {
 		return
 	}
 	return c.JSON(http.StatusCreated, s)
+}
+
+func (h *Handler) ListStory(c echo.Context) (err error) {
+	userID := userIDFromToken(c)
+	page, _ := strconv.Atoi(c.QueryParam("page"))
+	limit, _ := strconv.Atoi(c.QueryParam("limit"))
+
+	// Default pagination
+	// 페이지 당 최대 20개의 글만 쿼리
+	if page == 0 {
+		page = 1
+	}
+	if limit == 0 {
+		limit = 20
+	}
+
+	// Retrieve posts from database
+	stories := []*model.Story{}
+	db := h.DB.Clone()
+	if err = db.DB("st_more").C("stories").
+		Find(bson.M{"author": userID}).
+		Sort("-date_created"). // 생성일자 역순으로 정렬
+		Skip((page - 1) * limit).
+		Limit(limit).
+		All(&stories); err != nil {
+		return
+	}
+	defer db.Close()
+
+	return c.JSON(http.StatusOK, stories)
 }
