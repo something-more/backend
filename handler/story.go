@@ -86,3 +86,32 @@ func (h *Handler) ListStory(c echo.Context) (err error) {
 
 	return c.JSON(http.StatusOK, stories)
 }
+
+func (h *Handler) RetrieveStory(c echo.Context) (err error) {
+	// Object bind
+	s := new(model.Story)
+	if err = c.Bind(s); err != nil {
+		return
+	}
+
+	// Get IDs
+	userID := userIDFromToken(c)
+	storyID := c.Param("story_id")
+
+	// Find story in database
+	db := h.DB.Clone()
+	defer db.Close()
+	if err = db.DB("st_more").C("stories").
+		Find(bson.M{"author":userID, "_id": bson.ObjectIdHex(storyID)}).
+		One(s); err != nil {
+		if err == mgo.ErrNotFound {
+			return &echo.HTTPError{
+				Code:    http.StatusBadRequest,
+				Message: "스토리를 찾을 수 없습니다",
+			}
+		}
+		return
+	}
+
+	return c.JSON(http.StatusOK, s)
+}
