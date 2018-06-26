@@ -89,6 +89,25 @@ func (h *Handler) ListStory(c echo.Context) (err error) {
 	return c.JSON(http.StatusOK, stories)
 }
 
+func (h *Handler) CountStory(c echo.Context) (err error) {
+	userID := userIDFromToken(c)
+
+	// int type 변수 지정
+	var count int
+
+	// Get count of stories from database
+	db := h.DB.Clone()
+	defer db.Close()
+	if count, err = db.DB("st_more").C("stories").
+		Find(bson.M{"author": userID}).
+		Count(); err != nil {
+			return
+	}
+
+	// int type count 를 ascii 로 변환해서 리턴
+	return c.String(http.StatusOK, strconv.Itoa(count))
+}
+
 func (h *Handler) GetStory(c echo.Context, s *model.Story) (err error) {
 
 	// Get IDs
