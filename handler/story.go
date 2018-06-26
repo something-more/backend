@@ -163,3 +163,26 @@ func (h *Handler) PatchStory(c echo.Context) (err error) {
 
 	return c.JSON(http.StatusOK, s)
 }
+
+func (h *Handler) DestroyStory(c echo.Context) (err error) {
+	// Object bind
+	s := new(model.Story)
+	if err = c.Bind(s); err != nil {
+		return
+	}
+
+	// Find story in database
+	if err = h.GetStory(c, s); err != nil {
+		return
+	}
+
+	// Destroy story in database
+	db := h.DB.Clone()
+	defer db.Close()
+	if err = db.DB("st_more").C("stories").
+		Remove(bson.M{"_id": s.ID}); err != nil {
+			return
+	}
+
+	return c.NoContent(http.StatusNoContent)
+}
