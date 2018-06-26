@@ -96,7 +96,7 @@ func main() {
 	e.POST("/story/", h.CreateStory) // 스토리 생성
 	e.GET("/story/", h.ListStory) // 스토리 리스트
 	e.GET("/story/:story_id", h.RetrieveStory) // 스토리 디테일
-	e.POST("/story/:story_id", h.PatchStory) // 스토리 수정
+	e.PATCH("/story/:story_id", h.PatchStory) // 스토리 수정
 
 	// Start server
 	e.Logger.Fatal(e.Start(":1323"))
