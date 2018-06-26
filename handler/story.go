@@ -39,6 +39,8 @@ func (h * Handler) CreateStory(c echo.Context) (err error) {
 	s.Title = c.FormValue("title")
 	s.Content = c.FormValue("content")
 	s.DateCreated = c.FormValue("date_created")
+	s.DateModified = ""
+	s.IsPublished = false
 
 	// Find user
 	db := h.DB.Clone()
@@ -87,12 +89,7 @@ func (h *Handler) ListStory(c echo.Context) (err error) {
 	return c.JSON(http.StatusOK, stories)
 }
 
-func (h *Handler) RetrieveStory(c echo.Context) (err error) {
-	// Object bind
-	s := new(model.Story)
-	if err = c.Bind(s); err != nil {
-		return
-	}
+func (h *Handler) GetStory(c echo.Context, s *model.Story) (err error) {
 
 	// Get IDs
 	userID := userIDFromToken(c)
@@ -110,6 +107,57 @@ func (h *Handler) RetrieveStory(c echo.Context) (err error) {
 				Message: "스토리를 찾을 수 없습니다",
 			}
 		}
+		return
+	}
+
+	return
+}
+
+func (h *Handler) RetrieveStory(c echo.Context) (err error) {
+	// Object bind
+	s := new(model.Story)
+	if err = c.Bind(s); err != nil {
+		return
+	}
+
+	// Find story in database
+	if err = h.GetStory(c, s); err != nil {
+		return
+	}
+
+	return c.JSON(http.StatusOK, s)
+}
+
+func (h *Handler) PatchStory(c echo.Context) (err error) {
+	// Object bind
+	s := new(model.Story)
+	if err = c.Bind(s); err != nil {
+		return
+	}
+
+	// Find story in database
+	if err = h.GetStory(c, s); err != nil {
+		return
+	}
+
+	// Add FormValues in Story Instance
+	s.Title = c.FormValue("title")
+	s.Content = c.FormValue("content")
+	s.DateModified = c.FormValue("date_modified")
+	s.IsPublished, _ = strconv.ParseBool(c.FormValue("is_published"))
+
+	// Update story in database
+	db := h.DB.Clone()
+	defer db.Close()
+	if err = db.DB("st_more").C("stories").
+		Update(
+		bson.M{"_id": s.ID},
+		bson.M{"$set":
+		bson.M{
+			"title":         s.Title,
+			"content":       s.Content,
+			"date_modified": s.DateModified,
+			"is_published":  s.IsPublished}}); err != nil {
 		return
 	}
 
