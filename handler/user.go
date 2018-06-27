@@ -315,3 +315,10 @@ func userIDFromToken(c echo.Context) string {
 	claims := user.Claims.(jwt.MapClaims)
 	return claims["id"].(string)
 }
+
+func isAdminFromToken(c echo.Context) bool {
+	// JWT 를 통해 관리자 여부를 체크하는 헬퍼 함수
+	user := c.Get("user").(*jwt.Token)
+	claims := user.Claims.(jwt.MapClaims)
+	return claims["isAdmin"].(bool)
+}
