@@ -97,6 +97,9 @@ func main() {
 	e.PATCH("/patch/", h.PatchPassword) // 비밀번호 수정
 	e.DELETE("/destroy/", h.DestroyUser) // 회원 탈퇴
 
+	// Route: Admin
+	e.GET("/users/", h.ListUsers) // 전체 유저 리스트
+
 	// Route: Story
 	e.POST("/story/", h.CreateStory) // 스토리 생성
 	e.GET("/story/", h.ListStory) // 스토리 리스트
