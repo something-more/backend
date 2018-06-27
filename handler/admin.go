@@ -44,6 +44,7 @@ func (h *Handler) ListUsers(c echo.Context) (err error) {
 	var users []*model.User
 	if err = db.DB("st_more").C("users").
 		Find(nil).
+		Select(bson.M{"password": 0}).
 		Sort("-is_admin").
 		Sort("-is_staff").
 		All(&users); err != nil {
