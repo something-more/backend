@@ -251,6 +251,36 @@ func (h *Handler) SignIn(c echo.Context) (err error) {
 	return c.JSON(http.StatusOK, u.Token)
 }
 
+func (h *Handler) DestroyUser(c echo.Context) (err error) {
+	// Bind object
+	u := new(model.User)
+	if err = c.Bind(u); err != nil {
+		return
+	}
+
+	// Find password
+	comparePassword := HashPassword(u.Password)
+
+	// Find userID
+	userID := userIDFromToken(c)
+
+	// Destroy user from database
+	db := h.DB.Clone()
+	defer db.Close()
+	if err = db.DB("st_more").C("users").
+		Remove(bson.M{"_id": bson.ObjectIdHex(userID), "password": comparePassword}); err != nil {
+		if err == mgo.ErrNotFound {
+			return &echo.HTTPError{
+				Code:    http.StatusBadRequest,
+				Message: "계정을 찾을 수 없거나 패스워드가 틀렸습니다",
+			}
+		}
+		return
+	}
+
+	return c.NoContent(http.StatusNoContent)
+}
+
 func userIDFromToken(c echo.Context) string {
 	// 다른 메서드 안에서 JWT 를 통해 DB 상의 ID 를 꺼내오는 헬퍼 함수
 	user := c.Get("user").(*jwt.Token)

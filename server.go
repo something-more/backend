@@ -92,6 +92,7 @@ func main() {
 	e.POST("/admin/", h.SignUpAdmin)    // 관리자 회원 가입
 	e.GET("/activate/", h.Activate)     // 이메일 회원 활성화
 	e.POST("/sign-in/", h.SignIn)       // 로그인
+	e.DELETE("/destroy/", h.DestroyUser) // 회원 탈퇴
 
 	e.POST("/story/", h.CreateStory) // 스토리 생성
 	e.GET("/story/", h.ListStory) // 스토리 리스트
