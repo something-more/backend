@@ -84,16 +84,20 @@ func main() {
 	// Initialize handler
 	h := &handler.Handler{DB: db}
 
-	// Route
+	// Route: Index
 	e.GET("/", func(c echo.Context) error {
-		return c.String(http.StatusOK, "Hello, Something!\n")
-	})                                  // 인덱스
+		return c.String(http.StatusOK, "섬띵모어 API 서버\n")
+	})
+
+	// Route: User
 	e.POST("/sign-up/", h.SignUpNormal) // 회원 가입
 	e.POST("/admin/", h.SignUpAdmin)    // 관리자 회원 가입
 	e.GET("/activate/", h.Activate)     // 이메일 회원 활성화
 	e.POST("/sign-in/", h.SignIn)       // 로그인
+	e.PATCH("/patch/", h.PatchPassword) // 비밀번호 수정
 	e.DELETE("/destroy/", h.DestroyUser) // 회원 탈퇴
 
+	// Route: Story
 	e.POST("/story/", h.CreateStory) // 스토리 생성
 	e.GET("/story/", h.ListStory) // 스토리 리스트
 	e.GET("/story/count/", h.CountStory) // 스토리 총 갯수

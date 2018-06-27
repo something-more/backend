@@ -251,6 +251,34 @@ func (h *Handler) SignIn(c echo.Context) (err error) {
 	return c.JSON(http.StatusOK, u.Token)
 }
 
+func (h *Handler) PatchPassword(c echo.Context) (err error) {
+	// Bind object
+	u := new(model.User)
+	if err = c.Bind(u); err != nil {
+		return
+	}
+
+	// Find password
+	patchedPassword := HashPassword(u.Password)
+
+	// Find userID
+	userID := userIDFromToken(c)
+
+	// Patch password from database
+
+	db := h.DB.Clone()
+	defer db.Close()
+	if err = db.DB("st_more").C("users").
+		Update(
+		bson.M{"_id": bson.ObjectIdHex(userID)},
+		bson.M{"$set":
+		bson.M{"password": patchedPassword}}); err != nil {
+		return
+	}
+
+	return c.NoContent(http.StatusOK)
+}
+
 func (h *Handler) DestroyUser(c echo.Context) (err error) {
 	// Bind object
 	u := new(model.User)
