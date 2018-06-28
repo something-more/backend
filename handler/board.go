@@ -70,3 +70,38 @@ func (h *Handler) ListBoard(c echo.Context) (err error) {
 
 	return c.JSON(http.StatusOK, boards)
 }
+
+func (h *Handler) GetBoard(c echo.Context, b *model.Board) (err error) {
+
+	// Get IDs
+	boardID := c.Param("board_id")
+
+	// Find board in database
+	db := h.DB.Clone()
+	defer db.Close()
+	if err = db.DB("st_more").C("board").
+		Find(bson.M{"_id": bson.ObjectIdHex(boardID)}).
+		One(b); err != nil {
+		if err == mgo.ErrNotFound {
+			return echo.ErrNotFound
+		}
+		return
+	}
+	return
+}
+
+func (h *Handler) RetrieveBoard(c echo.Context) (err error) {
+	// Object bind
+
+	b := new(model.Board)
+	if err = c.Bind(b); err != nil {
+		return
+	}
+
+	// Find story in database
+	if err = h.GetBoard(c, b); err != nil {
+		return
+	}
+
+	return c.JSON(http.StatusOK, b)
+}
