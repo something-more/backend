@@ -99,6 +99,7 @@ func main() {
 
 	// Route: Admin
 	e.GET("/users/", h.ListUsers) // 전체 유저 리스트
+	e.PATCH("/users/:user_email", h.UpdateUserAuth) // 유저
 
 	// Route: Story
 	e.POST("/story/", h.CreateStory) // 스토리 생성
