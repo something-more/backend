@@ -12,6 +12,7 @@ func (h *Handler) CreateBoard(c echo.Context) (err error) {
 	// Bind object
 	u := &model.User{
 		ID: bson.ObjectIdHex(userIDFromToken(c)),
+		Email: userEmailFromToken(c),
 	}
 	b := &model.Board{
 		ID: bson.NewObjectId(),
