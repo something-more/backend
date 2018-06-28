@@ -174,3 +174,29 @@ func (h *Handler) PatchBoard(c echo.Context) (err error) {
 
 	return c.JSON(http.StatusOK, b)
 }
+
+func (h *Handler) DestroyBoard(c echo.Context) (err error) {
+	// Object bind
+	b := new(model.Board)
+	if err = c.Bind(b); err != nil {
+		return
+	}
+
+	// Find user
+	userEmail := userEmailFromToken(c)
+
+	// Find story in database
+	if err = h.GetBoard(c, b); err != nil {
+		return
+	}
+
+	// Destroy board in database
+	db := h.DB.Clone()
+	defer db.Close()
+	if err = db.DB("st_more").C("board").
+		Remove(bson.M{"_id": b.ID, "author": userEmail}); err != nil {
+			return
+	}
+
+	return c.NoContent(http.StatusNoContent)
+}
