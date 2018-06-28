@@ -109,6 +109,9 @@ func main() {
 	e.PATCH("/story/:story_id", h.PatchStory) // 스토리 수정
 	e.DELETE("/story/:story_id", h.DestroyStory) // 스토리 삭제
 
+	// Route: Board
+	e.POST("/board/", h.CreateBoard) // 자유게시판 글 생성
+
 	// Start server
 	e.Logger.Fatal(e.Start(":1323"))
 }
