@@ -258,14 +258,19 @@ func (h *Handler) PatchPassword(c echo.Context) (err error) {
 		return
 	}
 
-	// Find password
+	// Validation
+	if u.Password == "" {
+		return &echo.HTTPError{
+			Code: http.StatusBadRequest,
+			Message: "패스워드가 입력되지 않았습니다",
+		}
+	}
+
+	// Find userID & password
+	userID := userIDFromToken(c)
 	patchedPassword := HashPassword(u.Password)
 
-	// Find userID
-	userID := userIDFromToken(c)
-
 	// Patch password from database
-
 	db := h.DB.Clone()
 	defer db.Close()
 	if err = db.DB("st_more").C("users").
