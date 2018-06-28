@@ -125,7 +125,6 @@ func (h *Handler) GetBoard(c echo.Context, b *model.Board) (err error) {
 
 func (h *Handler) RetrieveBoard(c echo.Context) (err error) {
 	// Object bind
-
 	b := new(model.Board)
 	if err = c.Bind(b); err != nil {
 		return
@@ -133,6 +132,43 @@ func (h *Handler) RetrieveBoard(c echo.Context) (err error) {
 
 	// Find story in database
 	if err = h.GetBoard(c, b); err != nil {
+		return
+	}
+
+	return c.JSON(http.StatusOK, b)
+}
+
+func (h *Handler) PatchBoard(c echo.Context) (err error) {
+	// Object bind
+	b := new(model.Board)
+	if err = c.Bind(b); err != nil {
+		return
+	}
+
+	// Find user
+	userEmail := userEmailFromToken(c)
+
+	// Find story in database
+	if err = h.GetBoard(c, b); err != nil {
+		return
+	}
+
+	// Add FormValues in Story Instance
+	b.Title = c.FormValue("title")
+	b.Content = c.FormValue("content")
+	b.DateModified = c.FormValue("date_modified")
+
+	// Update story in database
+	db := h.DB.Clone()
+	defer db.Close()
+	if err = db.DB("st_more").C("board").
+		Update(
+		bson.M{"_id": b.ID, "author": userEmail},
+		bson.M{"$set":
+		bson.M{
+			"title":         b.Title,
+			"content":       b.Content,
+			"date_modified": b.DateModified}}); err != nil {
 		return
 	}
 

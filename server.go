@@ -117,6 +117,7 @@ func main() {
 	e.GET("/board/list/", h.ListBoard) // 자유게시판 글 목록
 	e.GET("/board/count/", h.CountBoard) // 자유게시판 글 갯수
 	e.GET("/board/:board_id", h.RetrieveBoard) // 자유게시판 글 보기
+	e.PATCH("/board/patch/:board_id", h.PatchBoard) // 자유게시판 글 수정
 
 	// Start server
 	e.Logger.Fatal(e.Start(":1323"))
