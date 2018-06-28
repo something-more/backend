@@ -11,9 +11,8 @@ import (
 	"github.com/backend/model"
 )
 
-func (h *Handler) ListUsers(c echo.Context) (err error) {
+func (h *Handler) ValidateAdmin(c echo.Context) (err error) {
 
-	// Validate user
 	u := new(model.User)
 
 	userID := userIDFromToken(c)
@@ -32,7 +31,6 @@ func (h *Handler) ListUsers(c echo.Context) (err error) {
 		return
 	}
 
-	// Validate admin
 	if isAdminFromToken(c) == false {
 		return &echo.HTTPError{
 			Code: http.StatusUnauthorized,
@@ -40,8 +38,20 @@ func (h *Handler) ListUsers(c echo.Context) (err error) {
 		}
 	}
 
+	return
+}
+
+func (h *Handler) ListUsers(c echo.Context) (err error) {
+
+	// Validate Admin
+	if err = h.ValidateAdmin(c); err != nil {
+		return
+	}
+
 	// Find users
 	var users []*model.User
+	db := h.DB.Clone()
+	defer db.Close()
 	if err = db.DB("st_more").C("users").
 		Find(nil).
 		Select(bson.M{"password": 0}).
@@ -52,4 +62,35 @@ func (h *Handler) ListUsers(c echo.Context) (err error) {
 	}
 
 	return c.JSON(http.StatusOK, users)
+}
+
+func (h *Handler) UpdateUserAuth(c echo.Context) (err error) {
+
+	// Validate Admin
+	if err = h.ValidateAdmin(c); err != nil {
+		return
+	}
+
+	// Bind object
+	u := new(model.User)
+	if err = c.Bind(u); err != nil {
+		return
+	}
+
+	userEmail := c.Param("user_email")
+
+	// Update user authentication
+	db := h.DB.Clone()
+	defer db.Close()
+	if err = db.DB("st_more").C("users").
+		Update(
+		bson.M{"email": userEmail},
+		bson.M{"$set":
+		bson.M{
+			"is_admin": u.IsAdmin,
+			"is_staff": u.IsStaff}}); err != nil {
+		return
+	}
+
+	return c.NoContent(http.StatusOK)
 }
