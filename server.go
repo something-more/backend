@@ -54,7 +54,7 @@ func main() {
 				c.Path() == "/activate/" ||
 				c.Path() == "/board/list/" ||
 				c.Path() == "/board/count/" ||
-				c.Path() == "/board/:board_id"{
+				c.Path() == "/board/view/:board_id"{
 				return true
 			}
 			return false
@@ -116,8 +116,9 @@ func main() {
 	e.POST("/board/", h.CreateBoard) // 자유게시판 글 생성
 	e.GET("/board/list/", h.ListBoard) // 자유게시판 글 목록
 	e.GET("/board/count/", h.CountBoard) // 자유게시판 글 갯수
-	e.GET("/board/:board_id", h.RetrieveBoard) // 자유게시판 글 보기
-	e.PATCH("/board/patch/:board_id", h.PatchBoard) // 자유게시판 글 수정
+	e.GET("/board/view/:board_id", h.RetrieveBoard) // 자유게시판 글 보기
+	e.PATCH("/board/:board_id", h.PatchBoard) // 자유게시판 글 수정
+	e.DELETE("/board/:board_id", h.DestroyBoard) // 자유게시판 글 삭제
 
 	// Start server
 	e.Logger.Fatal(e.Start(":1323"))
