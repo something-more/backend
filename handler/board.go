@@ -67,7 +67,7 @@ func (h *Handler) ListBoard(c echo.Context) (err error) {
 		page = 1
 	}
 	if limit == 0 {
-		limit = 20
+		limit = 15
 	}
 
 	var boards []*model.Board
@@ -84,6 +84,24 @@ func (h *Handler) ListBoard(c echo.Context) (err error) {
 	}
 
 	return c.JSON(http.StatusOK, boards)
+}
+
+func (h *Handler) CountBoard(c echo.Context) (err error) {
+
+	// int type 변수 지정
+	var count int
+
+	// Get count of stories from database
+	db := h.DB.Clone()
+	defer db.Close()
+	if count, err = db.DB("st_more").C("board").
+		Find(nil).
+		Count(); err != nil {
+		return
+	}
+
+	// int type count 를 ascii 로 변환해서 리턴
+	return c.String(http.StatusOK, strconv.Itoa(count))
 }
 
 func (h *Handler) GetBoard(c echo.Context, b *model.Board) (err error) {

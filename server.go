@@ -53,6 +53,7 @@ func main() {
 				c.Path() == "/sign-in/" ||
 				c.Path() == "/activate/" ||
 				c.Path() == "/board/list/" ||
+				c.Path() == "/board/count/" ||
 				c.Path() == "/board/:board_id"{
 				return true
 			}
@@ -114,6 +115,7 @@ func main() {
 	// Route: Board
 	e.POST("/board/", h.CreateBoard) // 자유게시판 글 생성
 	e.GET("/board/list/", h.ListBoard) // 자유게시판 글 목록
+	e.GET("/board/count/", h.CountBoard) // 자유게시판 글 갯수
 	e.GET("/board/:board_id", h.RetrieveBoard) // 자유게시판 글 보기
 
 	// Start server
