@@ -55,7 +55,7 @@ func (h *Handler) CreateBoard(c echo.Context) (err error) {
 	return c.JSON(http.StatusCreated, b)
 }
 
-func (h *Handler) listBoard(c echo.Context) (err error) {
+func (h *Handler) ListBoard(c echo.Context) (err error) {
 
 	var boards []*model.Board
 

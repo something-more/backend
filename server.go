@@ -51,7 +51,8 @@ func main() {
 				c.Path() == "/admin/" ||
 				c.Path() == "/sign-up/" ||
 				c.Path() == "/sign-in/" ||
-				c.Path() == "/activate/" {
+				c.Path() == "/activate/" ||
+				c.Path() == "/board/list/" {
 				return true
 			}
 			return false
@@ -111,6 +112,7 @@ func main() {
 
 	// Route: Board
 	e.POST("/board/", h.CreateBoard) // 자유게시판 글 생성
+	e.GET("/board/list/", h.ListBoard) // 자유게시판 글 목록
 
 	// Start server
 	e.Logger.Fatal(e.Start(":1323"))
