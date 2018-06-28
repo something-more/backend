@@ -83,6 +83,27 @@ func HashPassword(p string) string {
 	return hex.EncodeToString(sum[:])
 }
 
+func userIDFromToken(c echo.Context) string {
+	// 다른 메서드 안에서 JWT 를 통해 DB 상의 ID 를 꺼내오는 헬퍼 함수
+	user := c.Get("user").(*jwt.Token)
+	claims := user.Claims.(jwt.MapClaims)
+	return claims["id"].(string)
+}
+
+func isAdminFromToken(c echo.Context) bool {
+	// JWT 를 통해 관리자 여부를 체크하는 헬퍼 함수
+	user := c.Get("user").(*jwt.Token)
+	claims := user.Claims.(jwt.MapClaims)
+	return claims["isAdmin"].(bool)
+}
+
+func userEmailFromToken(c echo.Context) string {
+	// JWT 를 통해 이메일을 체크하는 헬퍼 함수
+	user := c.Get("user").(*jwt.Token)
+	claims := user.Claims.(jwt.MapClaims)
+	return claims["email"].(string)
+}
+
 func (h *Handler) CreateUser(u *model.User) (err error) {
 	// 회원 생성 메소드
 	// Validation
@@ -312,18 +333,4 @@ func (h *Handler) DestroyUser(c echo.Context) (err error) {
 	}
 
 	return c.NoContent(http.StatusNoContent)
-}
-
-func userIDFromToken(c echo.Context) string {
-	// 다른 메서드 안에서 JWT 를 통해 DB 상의 ID 를 꺼내오는 헬퍼 함수
-	user := c.Get("user").(*jwt.Token)
-	claims := user.Claims.(jwt.MapClaims)
-	return claims["id"].(string)
-}
-
-func isAdminFromToken(c echo.Context) bool {
-	// JWT 를 통해 관리자 여부를 체크하는 헬퍼 함수
-	user := c.Get("user").(*jwt.Token)
-	claims := user.Claims.(jwt.MapClaims)
-	return claims["isAdmin"].(bool)
 }
