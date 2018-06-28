@@ -6,6 +6,7 @@ import (
 	"github.com/globalsign/mgo/bson"
 	"net/http"
 	"github.com/globalsign/mgo"
+	"strconv"
 )
 
 func (h *Handler) CreateBoard(c echo.Context) (err error) {
@@ -57,6 +58,18 @@ func (h *Handler) CreateBoard(c echo.Context) (err error) {
 
 func (h *Handler) ListBoard(c echo.Context) (err error) {
 
+	page, _ := strconv.Atoi(c.QueryParam("page"))
+	limit, _ := strconv.Atoi(c.QueryParam("limit"))
+
+	// Default pagination
+	// 페이지 당 최대 20개의 글만 쿼리
+	if page == 0 {
+		page = 1
+	}
+	if limit == 0 {
+		limit = 20
+	}
+
 	var boards []*model.Board
 
 	db := h.DB.Clone()
@@ -64,6 +77,8 @@ func (h *Handler) ListBoard(c echo.Context) (err error) {
 	if err = db.DB("st_more").C("board").
 		Find(nil).
 		Sort("-date_created").
+		Skip((page - 1) * limit).
+		Limit(limit).
 		All(&boards); err != nil {
 			return
 	}
