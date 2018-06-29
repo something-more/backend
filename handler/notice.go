@@ -84,3 +84,20 @@ func (h *Handler) ListNotice(c echo.Context) (err error) {
 
 	return c.JSON(http.StatusOK, notices)
 }
+
+func (h *Handler) CountNotice(c echo.Context) (err error) {
+	// int type 변수 지정
+	var count int
+
+	// Get count of stories from database
+	db := h.DB.Clone()
+	defer db.Close()
+	if count, err = db.DB(DBName).C(NOTICE).
+		Find(nil).
+		Count(); err != nil {
+		return
+	}
+
+	// int type count 를 ascii 로 변환해서 리턴
+	return c.String(http.StatusOK, strconv.Itoa(count))
+}
