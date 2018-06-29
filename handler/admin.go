@@ -5,47 +5,21 @@ import (
 	"net/http"
 	// Third Party package
 	"github.com/labstack/echo"
-	"github.com/globalsign/mgo"
 	"github.com/globalsign/mgo/bson"
 	// User package
 	"github.com/backend/model"
 	"github.com/backend/utility"
 )
 
-func (h *Handler) ValidateAdmin(c echo.Context) (err error) {
-
-	u := new(model.User)
-
+func (h *Handler) ListUsers(c echo.Context) (err error) {
+	// Find user in database
 	userID := utility.UserIDFromToken(c)
-
-	db := h.DB.Clone()
-	defer db.Close()
-	if err = db.DB(DBName).C("users").
-		FindId(bson.ObjectIdHex(userID)).
-		One(u); err != nil {
-		if err == mgo.ErrNotFound {
-			return &echo.HTTPError{
-				Code:    http.StatusBadRequest,
-				Message: "존재하지 않는 계정입니다",
-			}
-		}
+	if err = h.FindUser(userID); err != nil {
 		return
 	}
 
-	if utility.IsAdminFromToken(c) == false {
-		return &echo.HTTPError{
-			Code:    http.StatusUnauthorized,
-			Message: "이 계정은 관리자가 아닙니다",
-		}
-	}
-
-	return
-}
-
-func (h *Handler) ListUsers(c echo.Context) (err error) {
-
 	// Validate Admin
-	if err = h.ValidateAdmin(c); err != nil {
+	if err = utility.AdminValidation(c); err != nil {
 		return
 	}
 
@@ -66,9 +40,14 @@ func (h *Handler) ListUsers(c echo.Context) (err error) {
 }
 
 func (h *Handler) UpdateUserAuth(c echo.Context) (err error) {
+	// Find user in database
+	userID := utility.UserIDFromToken(c)
+	if err = h.FindUser(userID); err != nil {
+		return
+	}
 
 	// Validate Admin
-	if err = h.ValidateAdmin(c); err != nil {
+	if err = utility.AdminValidation(c); err != nil {
 		return
 	}
 

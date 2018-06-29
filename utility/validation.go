@@ -18,6 +18,14 @@ func EmptyValueValidation(c echo.Context) (err error) {
 	return
 }
 
+func AdminValidation(c echo.Context) (err error) {
+
+	if IsAdminFromToken(c) == false {
+		return echo.ErrUnauthorized
+	}
+	return
+}
+
 func UserIDFromToken(c echo.Context) string {
 	// 다른 메서드 안에서 JWT 를 통해 DB 상의 ID 를 꺼내오는 헬퍼 함수
 	user := c.Get("user").(*jwt.Token)
