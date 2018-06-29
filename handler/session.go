@@ -5,7 +5,6 @@ import (
 	"github.com/globalsign/mgo"
 	"github.com/backend/model"
 	"github.com/globalsign/mgo/bson"
-	"github.com/backend/utility"
 )
 
 func (h *Handler) FindUser(id string) (err error) {
@@ -24,14 +23,13 @@ func (h *Handler) FindUser(id string) (err error) {
 func (h *Handler) FindStory(c echo.Context, s *model.Story) (err error) {
 
 	// Get IDs
-	userID := utility.UserIDFromToken(c)
 	storyID := c.Param("story_id")
 
 	// Find story in database
 	db := h.DB.Clone()
 	defer db.Close()
 	if err = db.DB("st_more").C("stories").
-		Find(bson.M{"author": userID, "_id": bson.ObjectIdHex(storyID)}).
+		Find(bson.M{"_id": bson.ObjectIdHex(storyID)}).
 		One(s); err != nil {
 		if err == mgo.ErrNotFound {
 			return echo.ErrNotFound

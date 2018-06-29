@@ -19,7 +19,7 @@ func (h *Handler) CreateBoard(c echo.Context) (err error) {
 	// Bind board object
 	userEmail := utility.UserEmailFromToken(c)
 	b := &model.Board{
-		ID: bson.NewObjectId(),
+		ID:     bson.NewObjectId(),
 		Author: userEmail, // 저자를 표시하기 위해 u.ID 를 삽입
 	}
 
@@ -49,7 +49,7 @@ func (h *Handler) CreateBoard(c echo.Context) (err error) {
 }
 
 func (h *Handler) ListBoard(c echo.Context) (err error) {
-
+	// Get query params
 	page, _ := strconv.Atoi(c.QueryParam("page"))
 	limit, _ := strconv.Atoi(c.QueryParam("limit"))
 
@@ -62,6 +62,7 @@ func (h *Handler) ListBoard(c echo.Context) (err error) {
 		limit = 15
 	}
 
+	// List boards from database
 	var boards []*model.Board
 
 	db := h.DB.Clone()
@@ -72,7 +73,7 @@ func (h *Handler) ListBoard(c echo.Context) (err error) {
 		Skip((page - 1) * limit).
 		Limit(limit).
 		All(&boards); err != nil {
-			return
+		return
 	}
 
 	return c.JSON(http.StatusOK, boards)
@@ -112,14 +113,17 @@ func (h *Handler) RetrieveBoard(c echo.Context) (err error) {
 }
 
 func (h *Handler) PatchBoard(c echo.Context) (err error) {
+	// Find user in database
+	userID := utility.UserIDFromToken(c)
+	if err = h.FindUser(userID); err != nil {
+		return
+	}
+
 	// Object bind
 	b := new(model.Board)
 	if err = c.Bind(b); err != nil {
 		return
 	}
-
-	// Find user
-	userEmail := utility.UserEmailFromToken(c)
 
 	// Find story in database
 	if err = h.FindBoard(c, b); err != nil {
@@ -136,7 +140,7 @@ func (h *Handler) PatchBoard(c echo.Context) (err error) {
 	defer db.Close()
 	if err = db.DB("st_more").C("board").
 		Update(
-		bson.M{"_id": b.ID, "author": userEmail},
+		bson.M{"_id": b.ID},
 		bson.M{"$set":
 		bson.M{
 			"title":         b.Title,
@@ -149,14 +153,17 @@ func (h *Handler) PatchBoard(c echo.Context) (err error) {
 }
 
 func (h *Handler) DestroyBoard(c echo.Context) (err error) {
+	// Find user in database
+	userID := utility.UserIDFromToken(c)
+	if err = h.FindUser(userID); err != nil {
+		return
+	}
+
 	// Object bind
 	b := new(model.Board)
 	if err = c.Bind(b); err != nil {
 		return
 	}
-
-	// Find user
-	userEmail := utility.UserEmailFromToken(c)
 
 	// Find story in database
 	if err = h.FindBoard(c, b); err != nil {
@@ -167,8 +174,8 @@ func (h *Handler) DestroyBoard(c echo.Context) (err error) {
 	db := h.DB.Clone()
 	defer db.Close()
 	if err = db.DB("st_more").C("board").
-		Remove(bson.M{"_id": b.ID, "author": userEmail}); err != nil {
-			return
+		Remove(bson.M{"_id": b.ID}); err != nil {
+		return
 	}
 
 	return c.NoContent(http.StatusNoContent)

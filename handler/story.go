@@ -52,7 +52,7 @@ func (h *Handler) CreateStory(c echo.Context) (err error) {
 }
 
 func (h *Handler) ListStory(c echo.Context) (err error) {
-	userID := utility.UserIDFromToken(c)
+	// Get query params
 	page, _ := strconv.Atoi(c.QueryParam("page"))
 	limit, _ := strconv.Atoi(c.QueryParam("limit"))
 
@@ -65,9 +65,12 @@ func (h *Handler) ListStory(c echo.Context) (err error) {
 		limit = 20
 	}
 
-	// Retrieve posts from database
-	stories := []*model.Story{}
+	// List stories from database
+	userID := utility.UserIDFromToken(c)
+	var stories []*model.Story
+
 	db := h.DB.Clone()
+	defer db.Close()
 	if err = db.DB("st_more").C("stories").
 		Find(bson.M{"author": userID}).
 		Sort("-date_created"). // 생성일자 역순으로 정렬
@@ -76,7 +79,6 @@ func (h *Handler) ListStory(c echo.Context) (err error) {
 		All(&stories); err != nil {
 		return
 	}
-	defer db.Close()
 
 	return c.JSON(http.StatusOK, stories)
 }
@@ -116,6 +118,12 @@ func (h *Handler) RetrieveStory(c echo.Context) (err error) {
 }
 
 func (h *Handler) PatchStory(c echo.Context) (err error) {
+	// Find user in database
+	userID := utility.UserIDFromToken(c)
+	if err = h.FindUser(userID); err != nil {
+		return
+	}
+
 	// Object bind
 	s := new(model.Story)
 	if err = c.Bind(s); err != nil {
