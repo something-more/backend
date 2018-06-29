@@ -1,12 +1,15 @@
 package handler
 
 import (
-	"github.com/labstack/echo"
-	"github.com/backend/utility"
-	"github.com/globalsign/mgo/bson"
-	"github.com/backend/model"
-	"net/http"
+	// Default package
 	"strconv"
+	"net/http"
+	// Third Party package
+	"github.com/labstack/echo"
+	"github.com/globalsign/mgo/bson"
+	// User package
+	"github.com/backend/model"
+	"github.com/backend/utility"
 )
 
 func (h *Handler) CreateNotice(c echo.Context) (err error) {
