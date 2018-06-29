@@ -6,7 +6,6 @@ import (
 	"net/http"
 	// Third Party package
 	"github.com/labstack/echo"
-	"github.com/globalsign/mgo"
 	"github.com/globalsign/mgo/bson"
 	// User package
 	"github.com/backend/model"
@@ -14,15 +13,23 @@ import (
 )
 
 func (h *Handler) CreateStory(c echo.Context) (err error) {
-	// Object bind
+	// Bind user object
 	// 유저는 JWT 에서 알아낸 DB 상의 ID를 16진수 디코딩을 하여 찾아낸다
 	u := &model.User{
 		ID: bson.ObjectIdHex(utility.UserIDFromToken(c)),
 	}
+
+	// Find user in database
+	if err = h.FindUser(u); err != nil {
+		return
+	}
+
+	// Bind story object
 	s := &model.Story{
 		ID:     bson.NewObjectId(),
 		Author: u.ID.Hex(), // 저자를 표시하기 위해 u.ID 를 삽입
 	}
+
 	if err = c.Bind(s); err != nil {
 		return
 	}
@@ -39,20 +46,13 @@ func (h *Handler) CreateStory(c echo.Context) (err error) {
 	s.DateModified = ""
 	s.IsPublished = false
 
-	// Find user
+	// Save Story
 	db := h.DB.Clone()
 	defer db.Close()
-	if err = db.DB("st_more").C("users").FindId(u.ID).One(u); err != nil {
-		if err == mgo.ErrNotFound {
-			return echo.ErrNotFound
-		}
-		return
-	}
-
-	// Save Story
 	if err = db.DB("st_more").C("stories").Insert(s); err != nil {
 		return
 	}
+
 	return c.JSON(http.StatusCreated, s)
 }
 
