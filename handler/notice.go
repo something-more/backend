@@ -101,3 +101,18 @@ func (h *Handler) CountNotice(c echo.Context) (err error) {
 	// int type count 를 ascii 로 변환해서 리턴
 	return c.String(http.StatusOK, strconv.Itoa(count))
 }
+
+func (h *Handler) RetrieveNotice(c echo.Context) (err error) {
+	// Object bind
+	n := new(model.Post)
+	if err = c.Bind(n); err != nil {
+		return
+	}
+
+	// Find story in database
+	if err = h.FindPost(c, n, NOTICE); err != nil {
+		return
+	}
+
+	return c.JSON(http.StatusOK, n)
+}
