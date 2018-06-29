@@ -116,3 +116,48 @@ func (h *Handler) RetrieveNotice(c echo.Context) (err error) {
 
 	return c.JSON(http.StatusOK, n)
 }
+
+func (h *Handler) PatchNotice(c echo.Context) (err error) {
+	// Find user in database
+	userID := utility.UserIDFromToken(c)
+	if err = h.FindUser(userID); err != nil {
+		return
+	}
+
+	// Validate admin
+	if err = utility.AdminValidation(c); err != nil {
+		return
+	}
+
+	// Object bind
+	n := new(model.Post)
+	if err = c.Bind(n); err != nil {
+		return
+	}
+
+	// Find story in database
+	if err = h.FindPost(c, n, NOTICE); err != nil {
+		return
+	}
+
+	// Add FormValues in Post Instance
+	n.Title = c.FormValue("title")
+	n.Content = c.FormValue("content")
+	n.DateModified = c.FormValue("date_modified")
+
+	// Update story in database
+	db := h.DB.Clone()
+	defer db.Close()
+	if err = db.DB(DBName).C(NOTICE).
+		Update(
+		bson.M{"_id": n.ID},
+		bson.M{"$set":
+		bson.M{
+			"title":         n.Title,
+			"content":       n.Content,
+			"date_modified": n.DateModified}}); err != nil {
+		return
+	}
+
+	return c.JSON(http.StatusOK, n)
+}
