@@ -66,7 +66,7 @@ func SendActivationEmail(a Account, t string) {
 	msg := []byte(ToHeader + FromHeader + Subject + Blank + body)
 
 	// 메일 전송
-	err := smtp.SendMail(a.Host + ":587", auth, from, to, msg)
+	err := smtp.SendMail(a.Host+":587", auth, from, to, msg)
 
 	// 에러 처리
 	if err != nil {
@@ -104,7 +104,7 @@ func (h *Handler) CreateUser(u *model.User) (err error) {
 		// 만일 발생한 오류가 중복 오류라면 400 에러를 발생시킨다
 		if mgo.IsDup(err) {
 			return &echo.HTTPError{
-				Code: http.StatusBadRequest,
+				Code:    http.StatusBadRequest,
 				Message: "이메일이 이미 존재합니다",
 			}
 		}
@@ -155,13 +155,13 @@ func (h *Handler) SignUpAdmin(c echo.Context) (err error) {
 	defer db.Close()
 	if err = db.DB("st_more").C("users").
 		Update(
-			bson.M{"_id": u.ID},
-			bson.M{"$set":
-				bson.M{
-					"is_active": true,
-					"is_staff": true,
-					"is_admin": true}}); err != nil {
-			return
+		bson.M{"_id": u.ID},
+		bson.M{"$set":
+		bson.M{
+			"is_active": true,
+			"is_staff":  true,
+			"is_admin":  true}}); err != nil {
+		return
 	}
 
 	return c.JSON(http.StatusCreated, u)
@@ -215,7 +215,7 @@ func (h *Handler) SignIn(c echo.Context) (err error) {
 		Find(bson.M{"email": u.Email, "password": comparePassword}).One(u); err != nil {
 		if err == mgo.ErrNotFound {
 			return &echo.HTTPError{
-				Code: http.StatusUnauthorized,
+				Code:    http.StatusUnauthorized,
 				Message: "이메일이나 패스워드가 올바르지 않습니다",
 			}
 		}
@@ -262,7 +262,7 @@ func (h *Handler) PatchPassword(c echo.Context) (err error) {
 	// Validation
 	if u.Password == "" {
 		return &echo.HTTPError{
-			Code: http.StatusBadRequest,
+			Code:    http.StatusBadRequest,
 			Message: "패스워드가 입력되지 않았습니다",
 		}
 	}

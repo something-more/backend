@@ -13,14 +13,14 @@ import (
 	"github.com/backend/utility"
 )
 
-func (h * Handler) CreateStory(c echo.Context) (err error) {
+func (h *Handler) CreateStory(c echo.Context) (err error) {
 	// Object bind
 	// 유저는 JWT 에서 알아낸 DB 상의 ID를 16진수 디코딩을 하여 찾아낸다
 	u := &model.User{
 		ID: bson.ObjectIdHex(utility.UserIDFromToken(c)),
 	}
 	s := &model.Story{
-		ID: bson.NewObjectId(),
+		ID:     bson.NewObjectId(),
 		Author: u.ID.Hex(), // 저자를 표시하기 위해 u.ID 를 삽입
 	}
 	if err = c.Bind(s); err != nil {
@@ -98,35 +98,11 @@ func (h *Handler) CountStory(c echo.Context) (err error) {
 	if count, err = db.DB("st_more").C("stories").
 		Find(bson.M{"author": userID}).
 		Count(); err != nil {
-			return
+		return
 	}
 
 	// int type count 를 ascii 로 변환해서 리턴
 	return c.String(http.StatusOK, strconv.Itoa(count))
-}
-
-func (h *Handler) GetStory(c echo.Context, s *model.Story) (err error) {
-
-	// Get IDs
-	userID := utility.UserIDFromToken(c)
-	storyID := c.Param("story_id")
-
-	// Find story in database
-	db := h.DB.Clone()
-	defer db.Close()
-	if err = db.DB("st_more").C("stories").
-		Find(bson.M{"author":userID, "_id": bson.ObjectIdHex(storyID)}).
-		One(s); err != nil {
-		if err == mgo.ErrNotFound {
-			return &echo.HTTPError{
-				Code:    http.StatusBadRequest,
-				Message: "스토리를 찾을 수 없습니다",
-			}
-		}
-		return
-	}
-
-	return
 }
 
 func (h *Handler) RetrieveStory(c echo.Context) (err error) {
@@ -137,7 +113,7 @@ func (h *Handler) RetrieveStory(c echo.Context) (err error) {
 	}
 
 	// Find story in database
-	if err = h.GetStory(c, s); err != nil {
+	if err = h.FindStory(c, s); err != nil {
 		return
 	}
 
@@ -152,7 +128,7 @@ func (h *Handler) PatchStory(c echo.Context) (err error) {
 	}
 
 	// Find story in database
-	if err = h.GetStory(c, s); err != nil {
+	if err = h.FindStory(c, s); err != nil {
 		return
 	}
 
@@ -188,7 +164,7 @@ func (h *Handler) DestroyStory(c echo.Context) (err error) {
 	}
 
 	// Find story in database
-	if err = h.GetStory(c, s); err != nil {
+	if err = h.FindStory(c, s); err != nil {
 		return
 	}
 
@@ -197,7 +173,7 @@ func (h *Handler) DestroyStory(c echo.Context) (err error) {
 	defer db.Close()
 	if err = db.DB("st_more").C("stories").
 		Remove(bson.M{"_id": s.ID}); err != nil {
-			return
+		return
 	}
 
 	return c.NoContent(http.StatusNoContent)

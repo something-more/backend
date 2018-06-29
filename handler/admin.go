@@ -34,7 +34,7 @@ func (h *Handler) ValidateAdmin(c echo.Context) (err error) {
 
 	if utility.IsAdminFromToken(c) == false {
 		return &echo.HTTPError{
-			Code: http.StatusUnauthorized,
+			Code:    http.StatusUnauthorized,
 			Message: "이 계정은 관리자가 아닙니다",
 		}
 	}

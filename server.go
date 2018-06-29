@@ -39,7 +39,7 @@ func main() {
 	}))
 	// XSRF Token
 	e.Use(middleware.CSRFWithConfig(middleware.CSRFConfig{
-		CookieSecure:	false, // master 에서는 변경할 것
+		CookieSecure:   false, // master 에서는 변경할 것
 		CookieHTTPOnly: false, // master 에서는 변경할 것
 	}))
 	// JWT
@@ -54,7 +54,7 @@ func main() {
 				c.Path() == "/activate/" ||
 				c.Path() == "/board/list/" ||
 				c.Path() == "/board/count/" ||
-				c.Path() == "/board/view/:board_id"{
+				c.Path() == "/board/view/:board_id" {
 				return true
 			}
 			return false
@@ -93,32 +93,32 @@ func main() {
 	})
 
 	// Route: User
-	e.POST("/sign-up/", h.SignUpNormal) // 회원 가입
-	e.POST("/admin/", h.SignUpAdmin)    // 관리자 회원 가입
-	e.GET("/activate/", h.Activate)     // 이메일 회원 활성화
-	e.POST("/sign-in/", h.SignIn)       // 로그인
-	e.PATCH("/patch/", h.PatchPassword) // 비밀번호 수정
+	e.POST("/sign-up/", h.SignUpNormal)  // 회원 가입
+	e.POST("/admin/", h.SignUpAdmin)     // 관리자 회원 가입
+	e.GET("/activate/", h.Activate)      // 이메일 회원 활성화
+	e.POST("/sign-in/", h.SignIn)        // 로그인
+	e.PATCH("/patch/", h.PatchPassword)  // 비밀번호 수정
 	e.DELETE("/destroy/", h.DestroyUser) // 회원 탈퇴
 
 	// Route: Admin
-	e.GET("/users/", h.ListUsers) // 전체 유저 리스트
+	e.GET("/users/", h.ListUsers)                   // 전체 유저 리스트
 	e.PATCH("/users/:user_email", h.UpdateUserAuth) // 유저
 
 	// Route: Story
-	e.POST("/story/", h.CreateStory) // 스토리 생성
-	e.GET("/story/", h.ListStory) // 스토리 리스트
-	e.GET("/story/count/", h.CountStory) // 스토리 총 갯수
-	e.GET("/story/:story_id", h.RetrieveStory) // 스토리 디테일
-	e.PATCH("/story/:story_id", h.PatchStory) // 스토리 수정
+	e.POST("/story/", h.CreateStory)             // 스토리 생성
+	e.GET("/story/", h.ListStory)                // 스토리 리스트
+	e.GET("/story/count/", h.CountStory)         // 스토리 총 갯수
+	e.GET("/story/:story_id", h.RetrieveStory)   // 스토리 디테일
+	e.PATCH("/story/:story_id", h.PatchStory)    // 스토리 수정
 	e.DELETE("/story/:story_id", h.DestroyStory) // 스토리 삭제
 
 	// Route: Board
-	e.POST("/board/", h.CreateBoard) // 자유게시판 글 생성
-	e.GET("/board/list/", h.ListBoard) // 자유게시판 글 목록
-	e.GET("/board/count/", h.CountBoard) // 자유게시판 글 갯수
+	e.POST("/board/", h.CreateBoard)                // 자유게시판 글 생성
+	e.GET("/board/list/", h.ListBoard)              // 자유게시판 글 목록
+	e.GET("/board/count/", h.CountBoard)            // 자유게시판 글 갯수
 	e.GET("/board/view/:board_id", h.RetrieveBoard) // 자유게시판 글 보기
-	e.PATCH("/board/:board_id", h.PatchBoard) // 자유게시판 글 수정
-	e.DELETE("/board/:board_id", h.DestroyBoard) // 자유게시판 글 삭제
+	e.PATCH("/board/:board_id", h.PatchBoard)       // 자유게시판 글 수정
+	e.DELETE("/board/:board_id", h.DestroyBoard)    // 자유게시판 글 삭제
 
 	// Start server
 	e.Logger.Fatal(e.Start(":1323"))
