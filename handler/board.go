@@ -11,11 +11,17 @@ import (
 )
 
 func (h *Handler) CreateBoard(c echo.Context) (err error) {
-	// Bind object
+	// Bind user object
 	u := &model.User{
 		ID: bson.ObjectIdHex(utility.UserIDFromToken(c)),
-		Email: utility.UserEmailFromToken(c),
 	}
+
+	// Find user in database
+	if err = h.FindUser(c, u); err != nil {
+		return
+	}
+
+	// Bind board object
 	b := &model.Board{
 		ID: bson.NewObjectId(),
 		Author: u.Email, // 저자를 표시하기 위해 u.ID 를 삽입
@@ -36,20 +42,13 @@ func (h *Handler) CreateBoard(c echo.Context) (err error) {
 	b.DateCreated = c.FormValue("date_created")
 	b.DateModified = ""
 
-	// Find user
+	// Save Story
 	db := h.DB.Clone()
 	defer db.Close()
-	if err = db.DB("st_more").C("users").FindId(u.ID).One(u); err != nil {
-		if err == mgo.ErrNotFound {
-			return echo.ErrNotFound
-		}
-		return
-	}
-
-	// Save Story
 	if err = db.DB("st_more").C("board").Insert(b); err != nil {
 		return
 	}
+	
 	return c.JSON(http.StatusCreated, b)
 }
 
