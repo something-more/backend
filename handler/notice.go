@@ -6,6 +6,7 @@ import (
 	"github.com/globalsign/mgo/bson"
 	"github.com/backend/model"
 	"net/http"
+	"strconv"
 )
 
 func (h *Handler) CreateNotice(c echo.Context) (err error) {
@@ -45,9 +46,42 @@ func (h *Handler) CreateNotice(c echo.Context) (err error) {
 	// Save Post
 	db := h.DB.Clone()
 	defer db.Close()
-	if err = db.DB(DBName).C(STORY).Insert(n); err != nil {
+	if err = db.DB(DBName).C(NOTICE).Insert(n); err != nil {
 		return
 	}
 
 	return c.JSON(http.StatusCreated, n)
+}
+
+func (h *Handler) ListNotice(c echo.Context) (err error) {
+	// Get query params
+	page, _ := strconv.Atoi(c.QueryParam("page"))
+	limit, _ := strconv.Atoi(c.QueryParam("limit"))
+
+	// Default pagination
+	// 페이지 당 최대 20개의 글만 쿼리
+	if page == 0 {
+		page = 1
+	}
+	if limit == 0 {
+		limit = 20
+	}
+
+	// List stories from database
+	userID := utility.UserIDFromToken(c)
+	var notices []*model.Post
+
+	db := h.DB.Clone()
+	defer db.Close()
+	if err = db.DB(DBName).C(NOTICE).
+		Find(bson.M{"author": userID}).
+		Select(bson.M{"content": 0}). // 내용은 받아오지 않음으로써 응답시간 단축
+		Sort("-date_created"). // 생성일자 역순으로 정렬
+		Skip((page - 1) * limit).
+		Limit(limit).
+		All(&notices); err != nil {
+		return
+	}
+
+	return c.JSON(http.StatusOK, notices)
 }

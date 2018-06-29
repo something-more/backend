@@ -11,6 +11,7 @@ import (
 const DBName = "st_more"
 const STORY = "story"
 const BOARD = "board"
+const NOTICE = "notice"
 
 func (h *Handler) FindUser(id string) (err error) {
 	db := h.DB.Clone()
