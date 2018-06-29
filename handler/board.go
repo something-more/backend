@@ -38,7 +38,7 @@ func (h *Handler) CreateBoard(c echo.Context) (err error) {
 	b.DateCreated = c.FormValue("date_created")
 	b.DateModified = ""
 
-	// Save Story
+	// Save Post
 	db := h.DB.Clone()
 	defer db.Close()
 	if err = db.DB("st_more").C("board").Insert(b); err != nil {
@@ -130,7 +130,7 @@ func (h *Handler) PatchBoard(c echo.Context) (err error) {
 		return
 	}
 
-	// Add FormValues in Story Instance
+	// Add FormValues in Post Instance
 	b.Title = c.FormValue("title")
 	b.Content = c.FormValue("content")
 	b.DateModified = c.FormValue("date_modified")

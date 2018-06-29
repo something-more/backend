@@ -20,7 +20,7 @@ func (h *Handler) FindUser(id string) (err error) {
 	return
 }
 
-func (h *Handler) FindStory(c echo.Context, s *model.Story) (err error) {
+func (h *Handler) FindStory(c echo.Context, s *model.Post) (err error) {
 
 	// Get IDs
 	storyID := c.Param("story_id")

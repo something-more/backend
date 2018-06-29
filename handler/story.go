@@ -20,7 +20,7 @@ func (h *Handler) CreateStory(c echo.Context) (err error) {
 	}
 
 	// Bind story object
-	s := &model.Story{
+	s := &model.Post{
 		ID:     bson.NewObjectId(),
 		Author: userID, // 저자를 표시하기 위해 u.ID 를 삽입
 	}
@@ -34,14 +34,14 @@ func (h *Handler) CreateStory(c echo.Context) (err error) {
 		return
 	}
 
-	// Add FormValue in Story Instance
+	// Add FormValue in Post Instance
 	s.Title = c.FormValue("title")
 	s.Content = c.FormValue("content")
 	s.DateCreated = c.FormValue("date_created")
 	s.DateModified = ""
 	s.IsPublished = false
 
-	// Save Story
+	// Save Post
 	db := h.DB.Clone()
 	defer db.Close()
 	if err = db.DB("st_more").C("stories").Insert(s); err != nil {
@@ -67,7 +67,7 @@ func (h *Handler) ListStory(c echo.Context) (err error) {
 
 	// List stories from database
 	userID := utility.UserIDFromToken(c)
-	var stories []*model.Story
+	var stories []*model.Post
 
 	db := h.DB.Clone()
 	defer db.Close()
@@ -104,7 +104,7 @@ func (h *Handler) CountStory(c echo.Context) (err error) {
 
 func (h *Handler) RetrieveStory(c echo.Context) (err error) {
 	// Object bind
-	s := new(model.Story)
+	s := new(model.Post)
 	if err = c.Bind(s); err != nil {
 		return
 	}
@@ -125,7 +125,7 @@ func (h *Handler) PatchStory(c echo.Context) (err error) {
 	}
 
 	// Object bind
-	s := new(model.Story)
+	s := new(model.Post)
 	if err = c.Bind(s); err != nil {
 		return
 	}
@@ -135,7 +135,7 @@ func (h *Handler) PatchStory(c echo.Context) (err error) {
 		return
 	}
 
-	// Add FormValues in Story Instance
+	// Add FormValues in Post Instance
 	s.Title = c.FormValue("title")
 	s.Content = c.FormValue("content")
 	s.DateModified = c.FormValue("date_modified")
@@ -161,7 +161,7 @@ func (h *Handler) PatchStory(c echo.Context) (err error) {
 
 func (h *Handler) DestroyStory(c echo.Context) (err error) {
 	// Object bind
-	s := new(model.Story)
+	s := new(model.Post)
 	if err = c.Bind(s); err != nil {
 		return
 	}
