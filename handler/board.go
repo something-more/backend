@@ -10,20 +10,17 @@ import (
 )
 
 func (h *Handler) CreateBoard(c echo.Context) (err error) {
-	// Bind user object
-	u := &model.User{
-		ID: bson.ObjectIdHex(utility.UserIDFromToken(c)),
-	}
-
 	// Find user in database
-	if err = h.FindUser(u); err != nil {
+	userID := utility.UserIDFromToken(c)
+	if err = h.FindUser(userID); err != nil {
 		return
 	}
 
 	// Bind board object
+	userEmail := utility.UserEmailFromToken(c)
 	b := &model.Board{
 		ID: bson.NewObjectId(),
-		Author: u.Email, // 저자를 표시하기 위해 u.ID 를 삽입
+		Author: userEmail, // 저자를 표시하기 위해 u.ID 를 삽입
 	}
 
 	if err = c.Bind(b); err != nil {

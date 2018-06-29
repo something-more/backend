@@ -8,11 +8,11 @@ import (
 	"github.com/backend/utility"
 )
 
-func (h *Handler) FindUser(u *model.User) (err error) {
+func (h *Handler) FindUser(id string) (err error) {
 	db := h.DB.Clone()
 	defer db.Close()
 
-	if err = db.DB("st_more").C("users").FindId(u.ID).One(u); err != nil {
+	if err = db.DB("st_more").C("users").FindId(bson.ObjectIdHex(id)).One(nil); err != nil {
 		if err == mgo.ErrNotFound {
 			return echo.ErrNotFound
 		}

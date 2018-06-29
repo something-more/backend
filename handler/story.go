@@ -13,21 +13,16 @@ import (
 )
 
 func (h *Handler) CreateStory(c echo.Context) (err error) {
-	// Bind user object
-	// 유저는 JWT 에서 알아낸 DB 상의 ID를 16진수 디코딩을 하여 찾아낸다
-	u := &model.User{
-		ID: bson.ObjectIdHex(utility.UserIDFromToken(c)),
-	}
-
 	// Find user in database
-	if err = h.FindUser(u); err != nil {
+	userID := utility.UserIDFromToken(c)
+	if err = h.FindUser(userID); err != nil {
 		return
 	}
 
 	// Bind story object
 	s := &model.Story{
 		ID:     bson.NewObjectId(),
-		Author: u.ID.Hex(), // 저자를 표시하기 위해 u.ID 를 삽입
+		Author: userID, // 저자를 표시하기 위해 u.ID 를 삽입
 	}
 
 	if err = c.Bind(s); err != nil {
