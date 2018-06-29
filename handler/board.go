@@ -7,13 +7,14 @@ import (
 	"net/http"
 	"github.com/globalsign/mgo"
 	"strconv"
+	"github.com/backend/utility"
 )
 
 func (h *Handler) CreateBoard(c echo.Context) (err error) {
 	// Bind object
 	u := &model.User{
-		ID: bson.ObjectIdHex(userIDFromToken(c)),
-		Email: userEmailFromToken(c),
+		ID: bson.ObjectIdHex(utility.UserIDFromToken(c)),
+		Email: utility.UserEmailFromToken(c),
 	}
 	b := &model.Board{
 		ID: bson.NewObjectId(),
@@ -24,12 +25,8 @@ func (h *Handler) CreateBoard(c echo.Context) (err error) {
 		return
 	}
 
-	// Validation
-	if c.FormValue("title") == "" || c.FormValue("content") == "" {
-		return &echo.HTTPError{
-			Code: http.StatusBadRequest,
-			Message: "제목이나 내용을 반드시 입력해야 합니다",
-		}
+	// Empty Value Validation
+	if err = utility.EmptyValueValidation(c); err != nil {
 		return
 	}
 
@@ -146,7 +143,7 @@ func (h *Handler) PatchBoard(c echo.Context) (err error) {
 	}
 
 	// Find user
-	userEmail := userEmailFromToken(c)
+	userEmail := utility.UserEmailFromToken(c)
 
 	// Find story in database
 	if err = h.GetBoard(c, b); err != nil {
@@ -183,7 +180,7 @@ func (h *Handler) DestroyBoard(c echo.Context) (err error) {
 	}
 
 	// Find user
-	userEmail := userEmailFromToken(c)
+	userEmail := utility.UserEmailFromToken(c)
 
 	// Find story in database
 	if err = h.GetBoard(c, b); err != nil {

@@ -10,13 +10,14 @@ import (
 	"github.com/globalsign/mgo/bson"
 	// User package
 	"github.com/backend/model"
+	"github.com/backend/utility"
 )
 
 func (h * Handler) CreateStory(c echo.Context) (err error) {
 	// Object bind
 	// 유저는 JWT 에서 알아낸 DB 상의 ID를 16진수 디코딩을 하여 찾아낸다
 	u := &model.User{
-		ID: bson.ObjectIdHex(userIDFromToken(c)),
+		ID: bson.ObjectIdHex(utility.UserIDFromToken(c)),
 	}
 	s := &model.Story{
 		ID: bson.NewObjectId(),
@@ -26,12 +27,8 @@ func (h * Handler) CreateStory(c echo.Context) (err error) {
 		return
 	}
 
-	// Validation
-	if c.FormValue("title") == "" || c.FormValue("content") == "" {
-		return &echo.HTTPError{
-			Code: http.StatusBadRequest,
-			Message: "제목이나 내용을 반드시 입력해야 합니다",
-		}
+	// Empty Value Validation
+	if err = utility.EmptyValueValidation(c); err != nil {
 		return
 	}
 
@@ -60,7 +57,7 @@ func (h * Handler) CreateStory(c echo.Context) (err error) {
 }
 
 func (h *Handler) ListStory(c echo.Context) (err error) {
-	userID := userIDFromToken(c)
+	userID := utility.UserIDFromToken(c)
 	page, _ := strconv.Atoi(c.QueryParam("page"))
 	limit, _ := strconv.Atoi(c.QueryParam("limit"))
 
@@ -90,7 +87,7 @@ func (h *Handler) ListStory(c echo.Context) (err error) {
 }
 
 func (h *Handler) CountStory(c echo.Context) (err error) {
-	userID := userIDFromToken(c)
+	userID := utility.UserIDFromToken(c)
 
 	// int type 변수 지정
 	var count int
@@ -111,7 +108,7 @@ func (h *Handler) CountStory(c echo.Context) (err error) {
 func (h *Handler) GetStory(c echo.Context, s *model.Story) (err error) {
 
 	// Get IDs
-	userID := userIDFromToken(c)
+	userID := utility.UserIDFromToken(c)
 	storyID := c.Param("story_id")
 
 	// Find story in database

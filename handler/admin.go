@@ -9,13 +9,14 @@ import (
 	"github.com/globalsign/mgo/bson"
 	// User package
 	"github.com/backend/model"
+	"github.com/backend/utility"
 )
 
 func (h *Handler) ValidateAdmin(c echo.Context) (err error) {
 
 	u := new(model.User)
 
-	userID := userIDFromToken(c)
+	userID := utility.UserIDFromToken(c)
 
 	db := h.DB.Clone()
 	defer db.Close()
@@ -31,7 +32,7 @@ func (h *Handler) ValidateAdmin(c echo.Context) (err error) {
 		return
 	}
 
-	if isAdminFromToken(c) == false {
+	if utility.IsAdminFromToken(c) == false {
 		return &echo.HTTPError{
 			Code: http.StatusUnauthorized,
 			Message: "이 계정은 관리자가 아닙니다",

@@ -19,6 +19,7 @@ import (
 	"github.com/dgrijalva/jwt-go"
 	// User package
 	"github.com/backend/model"
+	"github.com/backend/utility"
 )
 
 type Account struct {
@@ -81,27 +82,6 @@ func HashPassword(p string) string {
 	sum := sha256.Sum256(rawPassword)
 	// sum 배열 요소 전체를 호출해 string 타입으로 변경
 	return hex.EncodeToString(sum[:])
-}
-
-func userIDFromToken(c echo.Context) string {
-	// 다른 메서드 안에서 JWT 를 통해 DB 상의 ID 를 꺼내오는 헬퍼 함수
-	user := c.Get("user").(*jwt.Token)
-	claims := user.Claims.(jwt.MapClaims)
-	return claims["id"].(string)
-}
-
-func isAdminFromToken(c echo.Context) bool {
-	// JWT 를 통해 관리자 여부를 체크하는 헬퍼 함수
-	user := c.Get("user").(*jwt.Token)
-	claims := user.Claims.(jwt.MapClaims)
-	return claims["isAdmin"].(bool)
-}
-
-func userEmailFromToken(c echo.Context) string {
-	// JWT 를 통해 이메일을 체크하는 헬퍼 함수
-	user := c.Get("user").(*jwt.Token)
-	claims := user.Claims.(jwt.MapClaims)
-	return claims["email"].(string)
 }
 
 func (h *Handler) CreateUser(u *model.User) (err error) {
@@ -288,7 +268,7 @@ func (h *Handler) PatchPassword(c echo.Context) (err error) {
 	}
 
 	// Find userID & password
-	userID := userIDFromToken(c)
+	userID := utility.UserIDFromToken(c)
 	patchedPassword := HashPassword(u.Password)
 
 	// Patch password from database
@@ -316,7 +296,7 @@ func (h *Handler) DestroyUser(c echo.Context) (err error) {
 	comparePassword := HashPassword(u.Password)
 
 	// Find userID
-	userID := userIDFromToken(c)
+	userID := utility.UserIDFromToken(c)
 
 	// Destroy user from database
 	db := h.DB.Clone()
