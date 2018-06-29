@@ -54,7 +54,10 @@ func main() {
 				c.Path() == "/activate/" ||
 				c.Path() == "/board/list/" ||
 				c.Path() == "/board/count/" ||
-				c.Path() == "/board/view/:board_id" {
+				c.Path() == "/board/view/:board_id" ||
+				c.Path() == "/notice/list/" ||
+				c.Path() == "/notice/count/" ||
+				c.Path() == "/notice/view/:notice_id" {
 				return true
 			}
 			return false
@@ -119,6 +122,14 @@ func main() {
 	e.GET("/board/view/:board_id", h.RetrieveBoard) // 자유게시판 글 보기
 	e.PATCH("/board/:board_id", h.PatchBoard)       // 자유게시판 글 수정
 	e.DELETE("/board/:board_id", h.DestroyBoard)    // 자유게시판 글 삭제
+
+	// Route: Notice
+	e.POST("/notice/", h.CreateNotice)                 // 공지사항 글 생성
+	e.GET("/notice/list/", h.ListNotice)               // 공지사항 글 목록
+	e.GET("/notice/count/", h.CountNotice)             // 공지사항 글 갯수
+	e.GET("/notice/view/:notice_id", h.RetrieveNotice) // 공지사항 글 보기
+	e.PATCH("/notice/:notice_id", h.PatchNotice)       // 공지사항 글 수정
+	e.DELETE("/notice/:notice_id", h.DestroyNotice)    // 공지사항 글 삭제
 
 	// Start server
 	e.Logger.Fatal(e.Start(":1323"))
