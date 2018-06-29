@@ -9,6 +9,7 @@ import (
 )
 
 const DBName = "st_more"
+const USER = "users"
 const STORY = "story"
 const BOARD = "board"
 const NOTICE = "notice"
@@ -17,7 +18,7 @@ func (h *Handler) FindUser(id string) (err error) {
 	db := h.DB.Clone()
 	defer db.Close()
 
-	if err = db.DB(DBName).C("users").FindId(bson.ObjectIdHex(id)).One(nil); err != nil {
+	if err = db.DB(DBName).C(USER).FindId(bson.ObjectIdHex(id)).One(nil); err != nil {
 		if err == mgo.ErrNotFound {
 			return echo.ErrNotFound
 		}

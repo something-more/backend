@@ -76,7 +76,7 @@ func main() {
 
 	// Create indices
 	// 인덱스 값으로 email 을 사용하며, 그 값은 고유하다
-	if err = db.Copy().DB("st_more").C("users").EnsureIndex(mgo.Index{
+	if err = db.Copy().DB(handler.DBName).C(handler.USER).EnsureIndex(mgo.Index{
 		Key:    []string{"email"},
 		Unique: true,
 	}); err != nil {
