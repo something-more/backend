@@ -67,14 +67,13 @@ func (h *Handler) ListNotice(c echo.Context) (err error) {
 		limit = 20
 	}
 
-	// List stories from database
-	userID := utility.UserIDFromToken(c)
+	// List notices from database
 	var notices []*model.Post
 
 	db := h.DB.Clone()
 	defer db.Close()
 	if err = db.DB(DBName).C(NOTICE).
-		Find(bson.M{"author": userID}).
+		Find(nil).
 		Select(bson.M{"content": 0}). // 내용은 받아오지 않음으로써 응답시간 단축
 		Sort("-date_created"). // 생성일자 역순으로 정렬
 		Skip((page - 1) * limit).
