@@ -73,6 +73,7 @@ func (h *Handler) ListStory(c echo.Context) (err error) {
 	defer db.Close()
 	if err = db.DB("st_more").C("stories").
 		Find(bson.M{"author": userID}).
+		Select(bson.M{"content": 0}). // 내용은 받아오지 않음으로써 응답시간 단축
 		Sort("-date_created"). // 생성일자 역순으로 정렬
 		Skip((page - 1) * limit).
 		Limit(limit).

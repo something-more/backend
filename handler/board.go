@@ -70,6 +70,7 @@ func (h *Handler) ListBoard(c echo.Context) (err error) {
 	defer db.Close()
 	if err = db.DB("st_more").C("board").
 		Find(nil).
+		Select(bson.M{"content": 0}). // 내용은 받아오지 않음으로써 응답시간 단축
 		Sort("-date_created").
 		Skip((page - 1) * limit).
 		Limit(limit).
