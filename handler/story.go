@@ -44,7 +44,7 @@ func (h *Handler) CreateStory(c echo.Context) (err error) {
 	// Save Post
 	db := h.DB.Clone()
 	defer db.Close()
-	if err = db.DB("st_more").C("stories").Insert(s); err != nil {
+	if err = db.DB(DBName).C(STORY).Insert(s); err != nil {
 		return
 	}
 
@@ -71,7 +71,7 @@ func (h *Handler) ListStory(c echo.Context) (err error) {
 
 	db := h.DB.Clone()
 	defer db.Close()
-	if err = db.DB("st_more").C("stories").
+	if err = db.DB(DBName).C(STORY).
 		Find(bson.M{"author": userID}).
 		Select(bson.M{"content": 0}). // 내용은 받아오지 않음으로써 응답시간 단축
 		Sort("-date_created"). // 생성일자 역순으로 정렬
@@ -93,7 +93,7 @@ func (h *Handler) CountStory(c echo.Context) (err error) {
 	// Get count of stories from database
 	db := h.DB.Clone()
 	defer db.Close()
-	if count, err = db.DB("st_more").C("stories").
+	if count, err = db.DB(DBName).C(STORY).
 		Find(bson.M{"author": userID}).
 		Count(); err != nil {
 		return
@@ -145,7 +145,7 @@ func (h *Handler) PatchStory(c echo.Context) (err error) {
 	// Update story in database
 	db := h.DB.Clone()
 	defer db.Close()
-	if err = db.DB("st_more").C("stories").
+	if err = db.DB(DBName).C(STORY).
 		Update(
 		bson.M{"_id": s.ID},
 		bson.M{"$set":
@@ -175,7 +175,7 @@ func (h *Handler) DestroyStory(c echo.Context) (err error) {
 	// Destroy story in database
 	db := h.DB.Clone()
 	defer db.Close()
-	if err = db.DB("st_more").C("stories").
+	if err = db.DB(DBName).C(STORY).
 		Remove(bson.M{"_id": s.ID}); err != nil {
 		return
 	}

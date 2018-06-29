@@ -8,6 +8,7 @@ import (
 	"fmt"
 )
 
+const DBName = "st_more"
 const STORY = "story"
 const BOARD = "board"
 
@@ -15,7 +16,7 @@ func (h *Handler) FindUser(id string) (err error) {
 	db := h.DB.Clone()
 	defer db.Close()
 
-	if err = db.DB("st_more").C("users").FindId(bson.ObjectIdHex(id)).One(nil); err != nil {
+	if err = db.DB(DBName).C("users").FindId(bson.ObjectIdHex(id)).One(nil); err != nil {
 		if err == mgo.ErrNotFound {
 			return echo.ErrNotFound
 		}
@@ -32,7 +33,7 @@ func (h *Handler) FindPost(c echo.Context, s *model.Post, q string) (err error) 
 	// Find story in database
 	db := h.DB.Clone()
 	defer db.Close()
-	if err = db.DB("st_more").C(q).
+	if err = db.DB(DBName).C(q).
 		Find(bson.M{"_id": bson.ObjectIdHex(postID)}).
 		One(s); err != nil {
 		if err == mgo.ErrNotFound {

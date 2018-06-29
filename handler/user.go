@@ -100,7 +100,7 @@ func (h *Handler) CreateUser(u *model.User) (err error) {
 
 	db := h.DB.Clone()
 	defer db.Close()
-	if err = db.DB("st_more").C("users").Insert(u); err != nil {
+	if err = db.DB(DBName).C("users").Insert(u); err != nil {
 		// 만일 발생한 오류가 중복 오류라면 400 에러를 발생시킨다
 		if mgo.IsDup(err) {
 			return &echo.HTTPError{
@@ -153,7 +153,7 @@ func (h *Handler) SignUpAdmin(c echo.Context) (err error) {
 	// 권한 부여
 	db := h.DB.Clone()
 	defer db.Close()
-	if err = db.DB("st_more").C("users").
+	if err = db.DB(DBName).C("users").
 		Update(
 		bson.M{"_id": u.ID},
 		bson.M{"$set":
@@ -178,7 +178,7 @@ func (h *Handler) Activate(c echo.Context) (err error) {
 	// Find user
 	db := h.DB.Clone()
 	defer db.Close()
-	if err = db.DB("st_more").C("users").
+	if err = db.DB(DBName).C("users").
 		Find(bson.M{"email": u.Email}).One(u); err != nil {
 		if err == mgo.ErrNotFound {
 			return &echo.HTTPError{
@@ -211,7 +211,7 @@ func (h *Handler) SignIn(c echo.Context) (err error) {
 	// Find user
 	db := h.DB.Clone()
 	defer db.Close()
-	if err = db.DB("st_more").C("users").
+	if err = db.DB(DBName).C("users").
 		Find(bson.M{"email": u.Email, "password": comparePassword}).One(u); err != nil {
 		if err == mgo.ErrNotFound {
 			return &echo.HTTPError{
@@ -274,7 +274,7 @@ func (h *Handler) PatchPassword(c echo.Context) (err error) {
 	// Patch password from database
 	db := h.DB.Clone()
 	defer db.Close()
-	if err = db.DB("st_more").C("users").
+	if err = db.DB(DBName).C("users").
 		Update(
 		bson.M{"_id": bson.ObjectIdHex(userID)},
 		bson.M{"$set":
@@ -301,7 +301,7 @@ func (h *Handler) DestroyUser(c echo.Context) (err error) {
 	// Destroy user from database
 	db := h.DB.Clone()
 	defer db.Close()
-	if err = db.DB("st_more").C("users").
+	if err = db.DB(DBName).C("users").
 		Remove(bson.M{"_id": bson.ObjectIdHex(userID), "password": comparePassword}); err != nil {
 		if err == mgo.ErrNotFound {
 			return &echo.HTTPError{

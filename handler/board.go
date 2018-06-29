@@ -42,7 +42,7 @@ func (h *Handler) CreateBoard(c echo.Context) (err error) {
 	// Save Post
 	db := h.DB.Clone()
 	defer db.Close()
-	if err = db.DB("st_more").C("board").Insert(b); err != nil {
+	if err = db.DB(DBName).C(BOARD).Insert(b); err != nil {
 		return
 	}
 
@@ -68,7 +68,7 @@ func (h *Handler) ListBoard(c echo.Context) (err error) {
 
 	db := h.DB.Clone()
 	defer db.Close()
-	if err = db.DB("st_more").C("board").
+	if err = db.DB(DBName).C(BOARD).
 		Find(nil).
 		Select(bson.M{"content": 0}). // 내용은 받아오지 않음으로써 응답시간 단축
 		Sort("-date_created").
@@ -89,7 +89,7 @@ func (h *Handler) CountBoard(c echo.Context) (err error) {
 	// Get count of stories from database
 	db := h.DB.Clone()
 	defer db.Close()
-	if count, err = db.DB("st_more").C("board").
+	if count, err = db.DB(DBName).C(BOARD).
 		Find(nil).
 		Count(); err != nil {
 		return
@@ -140,7 +140,7 @@ func (h *Handler) PatchBoard(c echo.Context) (err error) {
 	// Update story in database
 	db := h.DB.Clone()
 	defer db.Close()
-	if err = db.DB("st_more").C("board").
+	if err = db.DB(DBName).C(BOARD).
 		Update(
 		bson.M{"_id": b.ID},
 		bson.M{"$set":
@@ -175,7 +175,7 @@ func (h *Handler) DestroyBoard(c echo.Context) (err error) {
 	// Destroy board in database
 	db := h.DB.Clone()
 	defer db.Close()
-	if err = db.DB("st_more").C("board").
+	if err = db.DB(DBName).C(BOARD).
 		Remove(bson.M{"_id": b.ID}); err != nil {
 		return
 	}
