@@ -37,6 +37,7 @@ func (h *Handler) CreateBoard(c echo.Context) (err error) {
 	b.Content = c.FormValue("content")
 	b.DateCreated = c.FormValue("date_created")
 	b.DateModified = ""
+	b.IsPublished = true
 
 	// Save Post
 	db := h.DB.Clone()
