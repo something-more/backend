@@ -20,7 +20,7 @@ func (h *Handler) ValidateAdmin(c echo.Context) (err error) {
 
 	db := h.DB.Clone()
 	defer db.Close()
-	if err = db.DB("st_more").C("users").
+	if err = db.DB(DBName).C("users").
 		FindId(bson.ObjectIdHex(userID)).
 		One(u); err != nil {
 		if err == mgo.ErrNotFound {
@@ -53,7 +53,7 @@ func (h *Handler) ListUsers(c echo.Context) (err error) {
 	var users []*model.User
 	db := h.DB.Clone()
 	defer db.Close()
-	if err = db.DB("st_more").C("users").
+	if err = db.DB(DBName).C("users").
 		Find(nil).
 		Select(bson.M{"password": 0}).
 		Sort("-is_admin").
@@ -83,7 +83,7 @@ func (h *Handler) UpdateUserAuth(c echo.Context) (err error) {
 	// Update user authentication
 	db := h.DB.Clone()
 	defer db.Close()
-	if err = db.DB("st_more").C("users").
+	if err = db.DB(DBName).C("users").
 		Update(
 		bson.M{"email": userEmail},
 		bson.M{"$set":
