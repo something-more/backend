@@ -105,7 +105,7 @@ func (h *Handler) RetrieveBoard(c echo.Context) (err error) {
 	}
 
 	// Find story in database
-	if err = h.FindPost(c, b); err != nil {
+	if err = h.FindPost(c, b, BOARD); err != nil {
 		return
 	}
 
@@ -126,7 +126,7 @@ func (h *Handler) PatchBoard(c echo.Context) (err error) {
 	}
 
 	// Find story in database
-	if err = h.FindPost(c, b); err != nil {
+	if err = h.FindPost(c, b, BOARD); err != nil {
 		return
 	}
 
@@ -166,7 +166,7 @@ func (h *Handler) DestroyBoard(c echo.Context) (err error) {
 	}
 
 	// Find story in database
-	if err = h.FindPost(c, b); err != nil {
+	if err = h.FindPost(c, b, BOARD); err != nil {
 		return
 	}
 

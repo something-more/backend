@@ -5,7 +5,11 @@ import (
 	"github.com/globalsign/mgo"
 	"github.com/backend/model"
 	"github.com/globalsign/mgo/bson"
+	"fmt"
 )
+
+const STORY = "story"
+const BOARD = "board"
 
 func (h *Handler) FindUser(id string) (err error) {
 	db := h.DB.Clone()
@@ -20,16 +24,16 @@ func (h *Handler) FindUser(id string) (err error) {
 	return
 }
 
-func (h *Handler) FindPost(c echo.Context, s *model.Post) (err error) {
+func (h *Handler) FindPost(c echo.Context, s *model.Post, q string) (err error) {
 
 	// Get IDs
-	storyID := c.Param("story_id")
+	postID := c.Param(fmt.Sprintf("%s_id", q))
 
 	// Find story in database
 	db := h.DB.Clone()
 	defer db.Close()
-	if err = db.DB("st_more").C("stories").
-		Find(bson.M{"_id": bson.ObjectIdHex(storyID)}).
+	if err = db.DB("st_more").C(q).
+		Find(bson.M{"_id": bson.ObjectIdHex(postID)}).
 		One(s); err != nil {
 		if err == mgo.ErrNotFound {
 			return echo.ErrNotFound
