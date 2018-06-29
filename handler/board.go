@@ -18,7 +18,7 @@ func (h *Handler) CreateBoard(c echo.Context) (err error) {
 
 	// Bind board object
 	userEmail := utility.UserEmailFromToken(c)
-	b := &model.Board{
+	b := &model.Post{
 		ID:     bson.NewObjectId(),
 		Author: userEmail, // 저자를 표시하기 위해 u.ID 를 삽입
 	}
@@ -32,7 +32,7 @@ func (h *Handler) CreateBoard(c echo.Context) (err error) {
 		return
 	}
 
-	// Add FormValue in Board Instance
+	// Add FormValue in Post Instance
 	b.Title = c.FormValue("title")
 	b.Content = c.FormValue("content")
 	b.DateCreated = c.FormValue("date_created")
@@ -63,7 +63,7 @@ func (h *Handler) ListBoard(c echo.Context) (err error) {
 	}
 
 	// List boards from database
-	var boards []*model.Board
+	var boards []*model.Post
 
 	db := h.DB.Clone()
 	defer db.Close()
@@ -99,13 +99,13 @@ func (h *Handler) CountBoard(c echo.Context) (err error) {
 
 func (h *Handler) RetrieveBoard(c echo.Context) (err error) {
 	// Object bind
-	b := new(model.Board)
+	b := new(model.Post)
 	if err = c.Bind(b); err != nil {
 		return
 	}
 
 	// Find story in database
-	if err = h.FindBoard(c, b); err != nil {
+	if err = h.FindPost(c, b); err != nil {
 		return
 	}
 
@@ -120,13 +120,13 @@ func (h *Handler) PatchBoard(c echo.Context) (err error) {
 	}
 
 	// Object bind
-	b := new(model.Board)
+	b := new(model.Post)
 	if err = c.Bind(b); err != nil {
 		return
 	}
 
 	// Find story in database
-	if err = h.FindBoard(c, b); err != nil {
+	if err = h.FindPost(c, b); err != nil {
 		return
 	}
 
@@ -160,13 +160,13 @@ func (h *Handler) DestroyBoard(c echo.Context) (err error) {
 	}
 
 	// Object bind
-	b := new(model.Board)
+	b := new(model.Post)
 	if err = c.Bind(b); err != nil {
 		return
 	}
 
 	// Find story in database
-	if err = h.FindBoard(c, b); err != nil {
+	if err = h.FindPost(c, b); err != nil {
 		return
 	}
 

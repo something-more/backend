@@ -20,7 +20,7 @@ func (h *Handler) FindUser(id string) (err error) {
 	return
 }
 
-func (h *Handler) FindStory(c echo.Context, s *model.Post) (err error) {
+func (h *Handler) FindPost(c echo.Context, s *model.Post) (err error) {
 
 	// Get IDs
 	storyID := c.Param("story_id")
@@ -31,25 +31,6 @@ func (h *Handler) FindStory(c echo.Context, s *model.Post) (err error) {
 	if err = db.DB("st_more").C("stories").
 		Find(bson.M{"_id": bson.ObjectIdHex(storyID)}).
 		One(s); err != nil {
-		if err == mgo.ErrNotFound {
-			return echo.ErrNotFound
-		}
-		return
-	}
-	return
-}
-
-func (h *Handler) FindBoard(c echo.Context, b *model.Board) (err error) {
-
-	// Get IDs
-	boardID := c.Param("board_id")
-
-	// Find board in database
-	db := h.DB.Clone()
-	defer db.Close()
-	if err = db.DB("st_more").C("board").
-		Find(bson.M{"_id": bson.ObjectIdHex(boardID)}).
-		One(b); err != nil {
 		if err == mgo.ErrNotFound {
 			return echo.ErrNotFound
 		}

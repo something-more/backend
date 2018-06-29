@@ -110,7 +110,7 @@ func (h *Handler) RetrieveStory(c echo.Context) (err error) {
 	}
 
 	// Find story in database
-	if err = h.FindStory(c, s); err != nil {
+	if err = h.FindPost(c, s); err != nil {
 		return
 	}
 
@@ -131,7 +131,7 @@ func (h *Handler) PatchStory(c echo.Context) (err error) {
 	}
 
 	// Find story in database
-	if err = h.FindStory(c, s); err != nil {
+	if err = h.FindPost(c, s); err != nil {
 		return
 	}
 
@@ -167,7 +167,7 @@ func (h *Handler) DestroyStory(c echo.Context) (err error) {
 	}
 
 	// Find story in database
-	if err = h.FindStory(c, s); err != nil {
+	if err = h.FindPost(c, s); err != nil {
 		return
 	}
 
