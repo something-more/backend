@@ -160,6 +160,44 @@ func (h *Handler) PatchStory(c echo.Context) (err error) {
 	return c.JSON(http.StatusOK, s)
 }
 
+func (h *Handler) ChangePublishStory(c echo.Context) (err error) {
+	// Find user in database
+	userID := utility.UserIDFromToken(c)
+	if err = h.FindUser(userID); err != nil {
+		return
+	}
+
+	// Object bind
+	s := new(model.Post)
+	if err = c.Bind(s); err != nil {
+		return
+	}
+
+	// Find story in database
+	if err = h.FindPost(c, s, STORY); err != nil {
+		return
+	}
+
+	// Add FormValues in Post Instance
+	s.DateModified = c.FormValue("date_modified")
+	s.IsPublished, _ = strconv.ParseBool(c.FormValue("is_published"))
+
+	// Update story in database
+	db := h.DB.Clone()
+	defer db.Close()
+	if err = db.DB(DBName).C(STORY).
+		Update(
+		bson.M{"_id": s.ID},
+		bson.M{"$set":
+		bson.M{
+			"date_modified": s.DateModified,
+			"is_published":  s.IsPublished}}); err != nil {
+		return
+	}
+
+	return c.JSON(http.StatusOK, s)
+}
+
 func (h *Handler) DestroyStory(c echo.Context) (err error) {
 	// Object bind
 	s := new(model.Post)

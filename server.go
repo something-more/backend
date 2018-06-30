@@ -113,6 +113,7 @@ func main() {
 	e.GET("/story/count/", h.CountStory)         // 스토리 총 갯수
 	e.GET("/story/:story_id", h.RetrieveStory)   // 스토리 디테일
 	e.PATCH("/story/:story_id", h.PatchStory)    // 스토리 수정
+	e.PATCH("/story/publish/:story_id", h.ChangePublishStory) // 스토리 발행 상태 변경
 	e.DELETE("/story/:story_id", h.DestroyStory) // 스토리 삭제
 
 	// Route: Board
