@@ -62,7 +62,7 @@ func (h *Handler) ListStory(c echo.Context) (err error) {
 		page = 1
 	}
 	if limit == 0 {
-		limit = 20
+		limit = 15
 	}
 
 	// List stories from database
