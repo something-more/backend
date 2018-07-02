@@ -64,6 +64,7 @@ func main() {
 				c.Path() == "/sign-up/" ||
 				c.Path() == "/sign-in/" ||
 				c.Path() == "/activate/" ||
+				c.Path() == "/story/client/" ||
 				c.Path() == "/board/list/" ||
 				c.Path() == "/board/count/" ||
 				c.Path() == "/board/view/:board_id" ||
@@ -143,6 +144,7 @@ func main() {
 	// Route: Story
 	e.POST("/story/", h.CreateStory)             // 스토리 생성
 	e.GET("/story/", h.ListStory)                // 스토리 리스트
+	e.GET("/story/client/", h.ClientListStory) // 클라이언트 스토리 리스트
 	e.GET("/story/count/", h.CountStory)         // 스토리 총 갯수
 	e.GET("/story/:story_id", h.RetrieveStory)   // 스토리 디테일
 	e.PATCH("/story/:story_id", h.PatchStory)    // 스토리 수정

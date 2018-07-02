@@ -84,6 +84,38 @@ func (h *Handler) ListStory(c echo.Context) (err error) {
 	return c.JSON(http.StatusOK, stories)
 }
 
+func (h *Handler) ClientListStory(c echo.Context) (err error) {
+	// Get query params
+	page, _ := strconv.Atoi(c.QueryParam("page"))
+	limit, _ := strconv.Atoi(c.QueryParam("limit"))
+
+	// Default pagination
+	// 페이지 당 최대 4개의 글만 쿼리
+	if page == 0 {
+		page = 1
+	}
+	if limit == 0 {
+		limit = 4
+	}
+
+	// List stories from database
+	var stories []*model.Post
+
+	db := h.DB.Clone()
+	defer db.Close()
+	if err = db.DB(DBName).C(STORY).
+		Find(nil).
+		Select(bson.M{"content": 0}). // 내용은 받아오지 않음으로써 응답시간 단축
+		Sort("-date_created"). // 생성일자 역순으로 정렬
+		Skip((page - 1) * limit).
+		Limit(limit).
+		All(&stories); err != nil {
+		return
+	}
+
+	return c.JSON(http.StatusOK, stories)
+}
+
 func (h *Handler) CountStory(c echo.Context) (err error) {
 	userID := utility.UserIDFromToken(c)
 
