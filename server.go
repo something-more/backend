@@ -2,7 +2,12 @@ package main
 
 import (
 	// Default package
+	"os"
+	"time"
 	"net/http"
+	"io/ioutil"
+	"path/filepath"
+	"encoding/json"
 	// Third Party package
 	"github.com/labstack/echo"
 	"github.com/labstack/echo/middleware"
@@ -11,6 +16,13 @@ import (
 	// User package
 	"github.com/backend/handler"
 )
+
+// DBInfo 구조체 선언
+type DBInfo struct{
+	DBName string `json:"db_name"`
+	Username string `json:"username"`
+	Password string `json:"password"`
+}
 
 func main() {
 	// Echo instance
@@ -68,8 +80,29 @@ func main() {
 	// Databases
 	//-----------
 
+	// Read Secreat JSON File
+	absPath, _ := filepath.Abs("../src/github.com/backend/.secrets_db.json")
+	jsonFile, err := os.Open(absPath)
+	defer jsonFile.Close()
+	if err != nil {
+		e.Logger.Fatal(err)
+	}
+	byteValue, _ := ioutil.ReadAll(jsonFile)
+
+	// Bind to DBInfo struct
+	var data DBInfo
+	json.Unmarshal(byteValue, &data)
+
 	// Database connection
-	db, err := mgo.Dial("localhost")
+	info := &mgo.DialInfo{
+		Addrs: []string{"localhost"},
+		Timeout: 60 * time.Second,
+		Database: data.DBName,
+		Username: data.Username,
+		Password: data.Password,
+	}
+
+	db, err := mgo.DialWithInfo(info)
 	if err != nil {
 		e.Logger.Fatal(err)
 	}
