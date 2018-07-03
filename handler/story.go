@@ -22,7 +22,7 @@ func (h *Handler) CreateStory(c echo.Context) (err error) {
 	// Bind story object
 	s := &model.Post{
 		ID:     bson.NewObjectId(),
-		Author: userID, // 저자를 표시하기 위해 u.ID 를 삽입
+		Author: utility.UserNicknameFromToken(c), // 저자를 표시하기 위해 Nickname 을 삽입
 	}
 
 	if err = c.Bind(s); err != nil {
@@ -66,13 +66,12 @@ func (h *Handler) ListStory(c echo.Context) (err error) {
 	}
 
 	// List stories from database
-	userID := utility.UserIDFromToken(c)
 	var stories []*model.Post
 
 	db := h.DB.Clone()
 	defer db.Close()
 	if err = db.DB(DBName).C(STORY).
-		Find(bson.M{"author": userID}).
+		Find(bson.M{"author": utility.UserNicknameFromToken(c)}).
 		Select(bson.M{"content": 0}). // 내용은 받아오지 않음으로써 응답시간 단축
 		Sort("-date_created"). // 생성일자 역순으로 정렬
 		Skip((page - 1) * limit).
@@ -104,7 +103,7 @@ func (h *Handler) ClientListStory(c echo.Context) (err error) {
 	db := h.DB.Clone()
 	defer db.Close()
 	if err = db.DB(DBName).C(STORY).
-		Find(nil).
+		Find(bson.M{"is_published": true}). // 발행 승인된 게시글만 쿼리
 		Select(bson.M{"content": 0}). // 내용은 받아오지 않음으로써 응답시간 단축
 		Sort("-date_created"). // 생성일자 역순으로 정렬
 		Skip((page - 1) * limit).
@@ -117,7 +116,6 @@ func (h *Handler) ClientListStory(c echo.Context) (err error) {
 }
 
 func (h *Handler) CountStory(c echo.Context) (err error) {
-	userID := utility.UserIDFromToken(c)
 
 	// int type 변수 지정
 	var count int
@@ -126,7 +124,7 @@ func (h *Handler) CountStory(c echo.Context) (err error) {
 	db := h.DB.Clone()
 	defer db.Close()
 	if count, err = db.DB(DBName).C(STORY).
-		Find(bson.M{"author": userID}).
+		Find(bson.M{"author": utility.UserNicknameFromToken(c)}).
 		Count(); err != nil {
 		return
 	}

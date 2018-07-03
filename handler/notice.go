@@ -27,7 +27,7 @@ func (h *Handler) CreateNotice(c echo.Context) (err error) {
 	// Bind notice object
 	n := &model.Post{
 		ID:     bson.NewObjectId(),
-		Author: userID, // 저자를 표시하기 위해 u.ID 를 삽입
+		Author: utility.UserNicknameFromToken(c), // 저자를 표시하기 위해 Nickname 을 삽입
 	}
 
 	if err = c.Bind(n); err != nil {
