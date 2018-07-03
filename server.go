@@ -60,6 +60,7 @@ func main() {
 		Skipper: func(c echo.Context) bool {
 			// 인증 메서드의 경우 authentication 을 건너뛴다
 			if c.Path() == "/" ||
+				c.Path() == "/assets/*" ||
 				c.Path() == "/admin/" ||
 				c.Path() == "/sign-up/" ||
 				c.Path() == "/sign-in/" ||
@@ -123,6 +124,9 @@ func main() {
 
 	// Initialize handler
 	h := &handler.Handler{DB: db}
+
+	// Route: Static
+	e.Static("/assets", "assets") // 정적 파일
 
 	// Route: Index
 	e.GET("/", func(c echo.Context) error {
