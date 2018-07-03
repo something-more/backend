@@ -34,6 +34,11 @@ func (h *Handler) CreateStory(c echo.Context) (err error) {
 		return
 	}
 
+	// File Upload
+	if err = h.UploadThumbnail(c, s); err != nil {
+		return
+	}
+
 	// Add FormValue in Post Instance
 	s.Title = c.FormValue("title")
 	s.Content = c.FormValue("content")
