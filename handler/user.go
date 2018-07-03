@@ -87,10 +87,10 @@ func HashPassword(p string) string {
 func (h *Handler) CreateUser(u *model.User) (err error) {
 	// 회원 생성 메소드
 	// Validation
-	if u.Email == "" || u.Password == "" {
+	if u.Email == "" || u.Password == "" || u.Nickname == "" {
 		return &echo.HTTPError{
 			Code:    http.StatusBadRequest,
-			Message: "이메일이나 패스워드가 입력되지 않았습니다",
+			Message: "정보가 제대로 입력되지 않았습니다",
 		}
 	}
 
@@ -236,6 +236,7 @@ func (h *Handler) SignIn(c echo.Context) (err error) {
 	claims := token.Claims.(jwt.MapClaims)
 	claims["id"] = u.ID
 	claims["email"] = u.Email
+	claims["nickname"] = u.Nickname
 	claims["isActive"] = u.IsActive
 	claims["isStaff"] = u.IsStaff
 	claims["isAdmin"] = u.IsAdmin
