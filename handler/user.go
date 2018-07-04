@@ -4,7 +4,6 @@ import (
 	// Default package
 	"os"
 	"fmt"
-	"time"
 	"net/http"
 	"net/smtp"
 	"path/filepath"
@@ -16,7 +15,6 @@ import (
 	"github.com/labstack/echo"
 	"github.com/globalsign/mgo"
 	"github.com/globalsign/mgo/bson"
-	"github.com/dgrijalva/jwt-go"
 	// User package
 	"github.com/backend/model"
 	"github.com/backend/utility"
@@ -222,25 +220,8 @@ func (h *Handler) SignIn(c echo.Context) (err error) {
 		return
 	}
 
-	//-----
-	// JWT
-	//-----
-
-	// Create token
-	// HS256 알고리즘으로 인코딩
-	// 단방향 암호화 알고리즘인 RS256과 달리 양방향 암호화 알고리즘이므로 디코딩이 가능함
-	token := jwt.New(jwt.SigningMethodHS256)
-
-	// Set claims
-	// 유저 정보를 담는다
-	claims := token.Claims.(jwt.MapClaims)
-	claims["id"] = u.ID
-	claims["email"] = u.Email
-	claims["nickname"] = u.Nickname
-	claims["isActive"] = u.IsActive
-	claims["isStaff"] = u.IsStaff
-	claims["isAdmin"] = u.IsAdmin
-	claims["exp"] = time.Now().Add(time.Hour * 72).Unix() // 토큰 유효시간: 72시간
+	// Create JWT
+	token := utility.CreateJWT(u)
 
 	// 토큰 인코딩 및 response 에 추가하기
 	// signing key 로 핸들러에 정의해 둔 Key 상수를 사용
@@ -322,7 +303,26 @@ func (h *Handler) PatchNickname(c echo.Context) (err error) {
 		return
 	}
 
-	return c.NoContent(http.StatusOK)
+	// Object 를 기존 DB 데이터로 Bind
+	if err = db.DB(DBName).C(USER).
+		FindId(bson.ObjectIdHex(userID)).One(u); err != nil {
+		if err == mgo.ErrNotFound {
+			return echo.ErrNotFound
+		}
+		return
+	}
+
+	// Create JWT
+	token := utility.CreateJWT(u)
+
+	// 토큰 인코딩 및 response 에 추가하기
+	// signing key 로 핸들러에 정의해 둔 Key 상수를 사용
+	u.Token, err = token.SignedString([]byte(Key))
+	if err != nil {
+		return err
+	}
+
+	return c.JSON(http.StatusOK, u.Token)
 }
 
 func (h *Handler) DestroyUser(c echo.Context) (err error) {
