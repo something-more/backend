@@ -104,3 +104,17 @@ func (h *Handler) UploadThumbnail(c echo.Context, s *model.Post, file *multipart
 	s.Thumbnail = thumbnailURL
 	return
 }
+
+func (h *Handler) PatchThumbnail(s *model.Post) (err error) {
+	db := h.DB.Clone()
+	defer db.Close()
+	if err = db.DB(DBName).C(STORY).
+		Update(
+		bson.M{"_id": s.ID},
+		bson.M{"$set":
+		bson.M{
+			"thumbnail": s.Thumbnail}}); err != nil {
+		return
+	}
+	return
+}
