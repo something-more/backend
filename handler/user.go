@@ -286,6 +286,45 @@ func (h *Handler) PatchPassword(c echo.Context) (err error) {
 	return c.NoContent(http.StatusOK)
 }
 
+func (h *Handler) PatchNickname(c echo.Context) (err error) {
+	// Bind object
+	u := new(model.User)
+	if err = c.Bind(u); err != nil {
+		return
+	}
+
+	// Validation
+	if u.Nickname == "" {
+		return &echo.HTTPError{
+			Code:    http.StatusBadRequest,
+			Message: "닉네임이 입력되지 않았습니다",
+		}
+	}
+
+	// Find userID
+	userID := utility.UserIDFromToken(c)
+
+	// Patch Nickname
+	db := h.DB.Clone()
+	defer db.Close()
+	if err = db.DB(DBName).C(USER).
+		Update(
+		bson.M{"_id": bson.ObjectIdHex(userID)},
+		bson.M{"$set":
+		bson.M{"nickname": u.Nickname}}); err != nil {
+		// 만일 발생한 오류가 중복 오류라면 400 에러를 발생시킨다
+		if mgo.IsDup(err) {
+			return &echo.HTTPError{
+				Code:    http.StatusBadRequest,
+				Message: "닉네임이 이미 존재합니다",
+			}
+		}
+		return
+	}
+
+	return c.NoContent(http.StatusOK)
+}
+
 func (h *Handler) DestroyUser(c echo.Context) (err error) {
 	// Bind object
 	u := new(model.User)

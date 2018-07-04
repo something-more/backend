@@ -113,7 +113,7 @@ func main() {
 	// Create indices
 	// 인덱스 값으로 email 을 사용하며, 그 값은 고유하다
 	if err = db.Copy().DB(handler.DBName).C(handler.USER).EnsureIndex(mgo.Index{
-		Key:    []string{"email"},
+		Key:    []string{"$text:email", "$text:nickname"},
 		Unique: true,
 	}); err != nil {
 		log.Fatal(err)
@@ -140,6 +140,7 @@ func main() {
 	e.GET("/activate/", h.Activate)      // 이메일 회원 활성화
 	e.POST("/sign-in/", h.SignIn)        // 로그인
 	e.PATCH("/patch/", h.PatchPassword)  // 비밀번호 수정
+	e.PATCH("/nickname/", h.PatchNickname) // 닉네임 수정
 	e.DELETE("/destroy/", h.DestroyUser) // 회원 탈퇴
 
 	// Route: Admin
