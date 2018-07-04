@@ -34,9 +34,13 @@ func (h *Handler) CreateStory(c echo.Context) (err error) {
 		return
 	}
 
-	// File Upload
-	if err = h.UploadThumbnail(c, s); err != nil {
-		return
+	// Thumbnail Upload Validation
+	file, err := c.FormFile("thumbnail")
+	// 썸네일이 입력되어 에러가 발생되지 않을 때에만 업로드 썸네일 함수 실행
+	if err == nil {
+		if err = h.UploadThumbnail(c, s, file); err != nil {
+			return
+		}
 	}
 
 	// Add FormValue in Post Instance

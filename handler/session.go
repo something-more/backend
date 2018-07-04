@@ -9,6 +9,7 @@ import (
 	"strconv"
 	"math/rand"
 	"path/filepath"
+	"mime/multipart"
 	// Third Party package
 	"github.com/labstack/echo"
 	"github.com/globalsign/mgo"
@@ -55,13 +56,8 @@ func (h *Handler) FindPost(c echo.Context, s *model.Post, q string) (err error) 
 	return
 }
 
-func (h *Handler) UploadThumbnail(c echo.Context, s *model.Post) (err error) {
-	// Source 구하기
-	file, err := c.FormFile("thumbnail")
-	if err != nil {
-		return
-	}
-
+func (h *Handler) UploadThumbnail(c echo.Context, s *model.Post, file *multipart.FileHeader) (err error) {
+	// File open
 	src, err := file.Open()
 	defer src.Close()
 	if err != nil {
