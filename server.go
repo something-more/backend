@@ -66,6 +66,7 @@ func main() {
 				c.Path() == "/sign-in/" ||
 				c.Path() == "/activate/" ||
 				c.Path() == "/story/client/" ||
+				c.Path() == "/story/:story_id" ||
 				c.Path() == "/board/list/" ||
 				c.Path() == "/board/count/" ||
 				c.Path() == "/board/view/:board_id" ||
