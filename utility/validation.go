@@ -1,9 +1,10 @@
 package utility
 
 import (
-	"github.com/labstack/echo"
+	// Default package
 	"net/http"
-	"github.com/dgrijalva/jwt-go"
+	// Third-party package
+	"github.com/labstack/echo"
 )
 
 func EmptyValueValidation(c echo.Context) (err error) {
@@ -24,32 +25,4 @@ func AdminValidation(c echo.Context) (err error) {
 		return echo.ErrUnauthorized
 	}
 	return
-}
-
-func UserIDFromToken(c echo.Context) string {
-	// 다른 메서드 안에서 JWT 를 통해 DB 상의 ID 를 꺼내오는 헬퍼 함수
-	user := c.Get("user").(*jwt.Token)
-	claims := user.Claims.(jwt.MapClaims)
-	return claims["id"].(string)
-}
-
-func UserEmailFromToken(c echo.Context) string {
-	// JWT 를 통해 이메일을 체크하는 헬퍼 함수
-	user := c.Get("user").(*jwt.Token)
-	claims := user.Claims.(jwt.MapClaims)
-	return claims["email"].(string)
-}
-
-func UserNicknameFromToken(c echo.Context) string {
-	// JWT 를 통해 닉네임을 체크하는 헬퍼 함수
-	user := c.Get("user").(*jwt.Token)
-	claims := user.Claims.(jwt.MapClaims)
-	return claims["nickname"].(string)
-}
-
-func IsAdminFromToken(c echo.Context) bool {
-	// JWT 를 통해 관리자 여부를 체크하는 헬퍼 함수
-	user := c.Get("user").(*jwt.Token)
-	claims := user.Claims.(jwt.MapClaims)
-	return claims["isAdmin"].(bool)
 }
