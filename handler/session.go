@@ -67,6 +67,7 @@ func (h *Handler) MapAuthorNickname(c echo.Context, p *model.Post) (err error) {
 			// 유저를 찾을 수 없는 경우 닉네임에 "탈퇴한 회원" 값을 줌
 			p.AuthorNickname = "탈퇴한 회원"
 		}
+		return
 	}
 	p.AuthorNickname = u.Nickname
 
@@ -93,19 +94,27 @@ func (h *Handler) UploadThumbnail(c echo.Context, s *model.Post, file *multipart
 	resultInt := strconv.FormatInt(rand.Int63n(100000), 10) // 100000 이하의 정수를 랜덤으로 생성해 문자열로 변환
 
 	// 파일명 생성하기
-	baseFileName := file.Filename                                     // 원본 파일 이름
-	extension := filepath.Ext(baseFileName)                           // 확장자 추출
-	realName := strings.TrimSuffix(baseFileName, extension)           // 확장자 제외한 이름 추출
+	baseFileName := file.Filename                           // 원본 파일 이름
+	extension := filepath.Ext(baseFileName)                 // 확장자 추출
+	realName := strings.TrimSuffix(baseFileName, extension) // 확장자 제외한 이름 추출
 	newFileName := realName + "_" + resultStr + resultInt + extension // 새로운 파일명 생성
 
-	// 디렉터리 생성하기
-	filePath, err := filepath.Abs("../bin/assets/") // 디렉터리가 없으면 생성할 것
-	if err != nil {
-		os.MkdirAll(filePath, 0777)
+	// 정적 파일 루트 디렉터리 생성하기: 디렉터리가 없으면 생성할 것
+	temporaryPath, _ := filepath.Abs("../bin/")
+	assetsPath := filepath.Join(temporaryPath, "/assets/")
+	if _, err := os.Stat(assetsPath); os.IsNotExist(err) {
+		os.Mkdir(assetsPath, 0777)
+	}
+
+	// 정적 파일 아래 필진 디렉터리 생성하기
+	authorPathValue := "/" + s.AuthorID.Hex() + "/" // authorID 로 된 path 값 생성
+	authorPath := filepath.Join(assetsPath, authorPathValue)
+	if _, err := os.Stat(authorPath); os.IsNotExist(err) {
+		os.Mkdir(authorPath, 0777)
 	}
 
 	// 파일 생성하기
-	dst, err := os.Create(filepath.Join(filePath, newFileName)) // 파일 이름에 랜덤 문자열 추가하여 저장
+	dst, err := os.Create(filepath.Join(authorPath, newFileName)) // 파일 이름에 랜덤 문자열 추가하여 저장
 	defer dst.Close()
 	if err != nil {
 		return
@@ -117,7 +126,7 @@ func (h *Handler) UploadThumbnail(c echo.Context, s *model.Post, file *multipart
 	}
 
 	// 파일 주소명을 Story object 에 넣기
-	thumbnailURL := c.Scheme() + "://" + c.Request().Host + "/assets/" + newFileName
+	thumbnailURL := c.Scheme() + "://" + c.Request().Host + "/assets" + authorPathValue + newFileName
 	s.Thumbnail = thumbnailURL
 	return
 }
