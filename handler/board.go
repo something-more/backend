@@ -21,8 +21,8 @@ func (h *Handler) CreateBoard(c echo.Context) (err error) {
 
 	// Bind board object
 	b := &model.Post{
-		ID:     bson.NewObjectId(),
-		Author: utility.UserNicknameFromToken(c), // 저자를 표시하기 위해 Nickname 을 삽입
+		ID:       bson.NewObjectId(),
+		AuthorID: bson.ObjectIdHex(userID), // 저자를 표시하기 위해 userID 삽입
 	}
 
 	if err = c.Bind(b); err != nil {
