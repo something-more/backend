@@ -124,9 +124,7 @@ func (h *Handler) ClientListStory(c echo.Context) (err error) {
 
 	// stories 슬라이스 순회
 	for _, story := range stories {
-		if err = h.MapAuthorNickname(c, story); err != nil {
-			return
-		}
+		h.MapAuthorNickname(c, story)
 	}
 
 	return c.JSON(http.StatusOK, stories)
@@ -165,9 +163,7 @@ func (h *Handler) RetrieveStory(c echo.Context) (err error) {
 	}
 
 	// Map AuthorNickname
-	if err = h.MapAuthorNickname(c, s); err != nil {
-		return
-	}
+	h.MapAuthorNickname(c, s)
 
 	return c.JSON(http.StatusOK, s)
 }
