@@ -80,6 +80,13 @@ func (h *Handler) ListBoard(c echo.Context) (err error) {
 		return
 	}
 
+	// Boards 슬라이스 순회하며 닉네임 매핑
+	for _, board := range boards {
+		if err = h.MapAuthorNickname(c, board); err!= nil {
+			return
+		}
+	}
+
 	return c.JSON(http.StatusOK, boards)
 }
 
@@ -110,6 +117,11 @@ func (h *Handler) RetrieveBoard(c echo.Context) (err error) {
 
 	// Find story in database
 	if err = h.FindPost(c, b, BOARD); err != nil {
+		return
+	}
+
+	// Map AuthorNickname
+	if err = h.MapAuthorNickname(c, b); err != nil {
 		return
 	}
 

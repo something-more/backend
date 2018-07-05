@@ -85,6 +85,13 @@ func (h *Handler) ListNotice(c echo.Context) (err error) {
 		return
 	}
 
+	// Notice 슬라이스 순회하며 닉네임 매핑
+	for _, notice := range notices {
+		if err = h.MapAuthorNickname(c, notice); err != nil {
+			return
+		}
+	}
+
 	return c.JSON(http.StatusOK, notices)
 }
 
@@ -114,6 +121,11 @@ func (h *Handler) RetrieveNotice(c echo.Context) (err error) {
 
 	// Find story in database
 	if err = h.FindPost(c, n, NOTICE); err != nil {
+		return
+	}
+
+	// Map AuthorNickname
+	if err = h.MapAuthorNickname(c, n); err != nil {
 		return
 	}
 
