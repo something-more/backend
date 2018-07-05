@@ -37,7 +37,7 @@ func (h *Handler) FindUser(id string) (err error) {
 	return
 }
 
-func (h *Handler) FindPost(c echo.Context, s *model.Post, q string) (err error) {
+func (h *Handler) FindPost(c echo.Context, p *model.Post, q string) (err error) {
 
 	// Get IDs
 	postID := c.Param(fmt.Sprintf("%s_id", q))
@@ -47,12 +47,29 @@ func (h *Handler) FindPost(c echo.Context, s *model.Post, q string) (err error) 
 	defer db.Close()
 	if err = db.DB(DBName).C(q).
 		Find(bson.M{"_id": bson.ObjectIdHex(postID)}).
-		One(s); err != nil {
+		One(p); err != nil {
 		if err == mgo.ErrNotFound {
 			return echo.ErrNotFound
 		}
 		return
 	}
+	return
+}
+
+func (h *Handler) MapAuthorNickname(c echo.Context, p *model.Post) (err error) {
+	// 포스트 객체에 담긴 userID 를 이용해 AuthorNickname 을 구하는 함수
+	u := new(model.User)
+	db := h.DB.Clone()
+	defer db.Close()
+	if err = db.DB(DBName).C(USER).
+		FindId(p.AuthorID).One(u); err != nil {
+		if err == mgo.ErrNotFound {
+			// 유저를 찾을 수 없는 경우 닉네임에 "탈퇴한 회원" 값을 줌
+			p.AuthorNickname = "탈퇴한 회원"
+		}
+	}
+	p.AuthorNickname = u.Nickname
+
 	return
 }
 
