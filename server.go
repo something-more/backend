@@ -37,7 +37,7 @@ func main() {
 	//CORS WhiteList
 	e.Use(middleware.CORSWithConfig(middleware.CORSConfig{
 		AllowOrigins: []string{
-			"http://localhost:3000", // master 에서는 변경할 것
+			"http://www.somethingmore.co.kr", // master 에서는 변경할 것
 		},
 		AllowHeaders: []string{
 			echo.HeaderOrigin,
