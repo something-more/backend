@@ -46,7 +46,7 @@ func (h *Handler) FindPost(c echo.Context, p *model.Post, q string) (err error) 
 	db := h.DB.Clone()
 	defer db.Close()
 	if err = db.DB(DBName).C(q).
-		Find(bson.M{"_id": bson.ObjectIdHex(postID)}).
+		FindId(bson.ObjectIdHex(postID)).
 		One(p); err != nil {
 		if err == mgo.ErrNotFound {
 			return echo.ErrNotFound
