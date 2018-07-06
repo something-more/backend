@@ -126,9 +126,10 @@ func (h *Handler) SignUpNormal(c echo.Context) (err error) {
 		return
 	}
 
-	// Sending Email
-	info := ReadSecretJson()
-	go SendActivationEmail(info, u.Email) // go routine 을 사용한 비동기 처리
+	//// Sending Email
+	//info := ReadSecretJson()
+	//// go routine 을 사용한 비동기 처리
+	//go SendActivationEmail(info, u.Email)
 
 	return c.JSON(http.StatusCreated, u)
 }
