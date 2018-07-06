@@ -103,7 +103,7 @@ func (h *Handler) CreateUser(u *model.User) (err error) {
 		if mgo.IsDup(err) {
 			return &echo.HTTPError{
 				Code:    http.StatusBadRequest,
-				Message: "이메일이 이미 존재합니다",
+				Message: "이메일이나 닉네임이 이미 존재합니다",
 			}
 		}
 		return
