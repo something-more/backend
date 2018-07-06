@@ -28,7 +28,7 @@ type Account struct {
 
 func ReadSecretJson() Account {
 	// Read Secret JSON File
-	absPath, _ := filepath.Abs("../src/github.com/backend/.secrets_email.json")
+	absPath, _ := filepath.Abs("./.secrets_email.json")
 	jsonFile, err := os.Open(absPath)
 	if err != nil {
 		fmt.Println(err)

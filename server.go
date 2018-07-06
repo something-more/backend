@@ -87,7 +87,7 @@ func main() {
 	//-----------
 
 	// Read Secreat JSON File
-	absPath, _ := filepath.Abs("../src/github.com/backend/.secrets_db.json")
+	absPath, _ := filepath.Abs("./.secrets_db.json")
 	jsonFile, err := os.Open(absPath)
 	defer jsonFile.Close()
 	if err != nil {
@@ -182,5 +182,5 @@ func main() {
 	e.DELETE("/notice/:notice_id", h.DestroyNotice)    // 공지사항 글 삭제
 
 	// Start server
-	e.Logger.Fatal(e.Start(":1323"))
+	e.Logger.Fatal(e.Start(":80"))
 }
