@@ -66,7 +66,7 @@ func (h *Handler) ListStory(c echo.Context) (err error) {
 	limit, _ := strconv.Atoi(c.QueryParam("limit"))
 
 	// Default pagination
-	// 페이지 당 최대 20개의 글만 쿼리
+	// 페이지 당 최대 15개의 글만 쿼리
 	if page == 0 {
 		page = 1
 	}
