@@ -182,5 +182,5 @@ func main() {
 	e.DELETE("/notice/:notice_id", h.DestroyNotice)    // 공지사항 글 삭제
 
 	// Start server
-	e.Logger.Fatal(e.Start(":80"))
+	e.Logger.Fatal(e.Start(":1323"))
 }
