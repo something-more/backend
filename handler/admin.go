@@ -27,7 +27,7 @@ func (h *Handler) ListUsers(c echo.Context) (err error) {
 	var users []*model.User
 	db := h.DB.Clone()
 	defer db.Close()
-	if err = db.DB(DBName).C("users").
+	if err = db.DB(DBName).C(USER).
 		Find(nil).
 		Select(bson.M{"password": 0}).
 		Sort("-is_admin").
@@ -62,7 +62,7 @@ func (h *Handler) UpdateUserAuth(c echo.Context) (err error) {
 	// Update user authentication
 	db := h.DB.Clone()
 	defer db.Close()
-	if err = db.DB(DBName).C("users").
+	if err = db.DB(DBName).C(USER).
 		Update(
 		bson.M{"email": userEmail},
 		bson.M{"$set":
