@@ -37,7 +37,7 @@ func main() {
 	//CORS WhiteList
 	e.Use(middleware.CORSWithConfig(middleware.CORSConfig{
 		AllowOrigins: []string{
-			"http://www.somethingmore.co.kr", // master 에서는 변경할 것
+			"https://www.somethingmore.co.kr", // master 에서는 변경할 것
 		},
 		AllowHeaders: []string{
 			echo.HeaderOrigin,
@@ -50,10 +50,10 @@ func main() {
 		AllowCredentials: true,
 	}))
 	// XSRF Token
-	e.Use(middleware.CSRFWithConfig(middleware.CSRFConfig{
-		CookieSecure:   false, // master 에서는 변경할 것
-		CookieHTTPOnly: false, // master 에서는 변경할 것
-	}))
+	//e.Use(middleware.CSRFWithConfig(middleware.CSRFConfig{
+	//	CookieSecure:   false, // master 에서는 변경할 것
+	//	CookieHTTPOnly: true, // master 에서는 변경할 것
+	//}))
 	// JWT
 	e.Use(middleware.JWTWithConfig(middleware.JWTConfig{
 		SigningKey: []byte(handler.Key), // "secret"
