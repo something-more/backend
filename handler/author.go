@@ -22,6 +22,7 @@ func (h *Handler) ListAuthors(c echo.Context) (err error) {
 		Select(bson.M{"password": 0}).
 		Sort("-is_admin").
 		Sort("-is_staff").
+		Sort("nickname").
 		All(&users); err != nil {
 		return
 	}
