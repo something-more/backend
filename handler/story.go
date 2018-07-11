@@ -47,6 +47,7 @@ func (h *Handler) CreateStory(c echo.Context) (err error) {
 	s.Title = c.FormValue("title")
 	s.Content = c.FormValue("content")
 	s.DateCreated = c.FormValue("date_created")
+	s.Category = c.FormValue("category")
 	s.DateModified = ""
 	s.IsPublished = false
 
@@ -203,6 +204,7 @@ func (h *Handler) PatchStory(c echo.Context) (err error) {
 	s.Content = c.FormValue("content")
 	s.DateModified = c.FormValue("date_modified")
 	s.IsPublished, _ = strconv.ParseBool(c.FormValue("is_published"))
+	s.Category = c.FormValue("category")
 
 	// Update story in database
 	db := h.DB.Clone()
@@ -215,7 +217,8 @@ func (h *Handler) PatchStory(c echo.Context) (err error) {
 			"title":         s.Title,
 			"content":       s.Content,
 			"date_modified": s.DateModified,
-			"is_published":  s.IsPublished}}); err != nil {
+			"is_published":  s.IsPublished,
+			"category":      s.Category}}); err != nil {
 		return
 	}
 

@@ -13,5 +13,6 @@ type (
 		Title          string        `json:"title" bson:"title"`
 		Content        string        `json:"content" bson:"content"`
 		IsPublished    bool          `json:"is_published" bson:"is_published"`
+		Category       string           `json:"category" bson:"category"`
 	}
 )
