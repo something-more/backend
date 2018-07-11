@@ -149,6 +149,7 @@ func main() {
 	// Route: Admin
 	e.GET("/users/", h.ListUsers)                   // 전체 유저 리스트
 	e.PATCH("/users/:user_email", h.UpdateUserAuth) // 유저
+	e.DELETE("/users/:user_email", h.ForceDestroyUser) // 유저 강제 탈퇴
 
 	// Route: Author
 	e.GET("/authors/", h.ListAuthors)                      // 필진 리스트
