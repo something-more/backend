@@ -74,3 +74,28 @@ func (h *Handler) UpdateUserAuth(c echo.Context) (err error) {
 
 	return c.NoContent(http.StatusOK)
 }
+
+func (h *Handler) ForceDestroyUser(c echo.Context) (err error) {
+	// Find user in database
+	userID := utility.UserIDFromToken(c)
+	if err = h.FindUser(userID); err != nil {
+		return
+	}
+
+	// Validate Admin
+	if err = utility.AdminValidation(c); err != nil {
+		return
+	}
+
+	userEmail := c.Param("user_email")
+
+	// Force Destroy user authentication
+	db := h.DB.Clone()
+	defer db.Close()
+	if err = db.DB(DBName).C(USER).
+		Remove(bson.M{"email": userEmail}); err != nil {
+		return
+	}
+
+	return c.NoContent(http.StatusNoContent)
+}

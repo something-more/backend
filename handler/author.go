@@ -20,8 +20,7 @@ func (h *Handler) ListAuthors(c echo.Context) (err error) {
 	if err = db.DB(DBName).C(USER).
 		Find(bson.M{"is_staff": true}).
 		Select(bson.M{"password": 0}).
-		Sort("-is_admin").
-		Sort("-is_staff").
+		Sort("-is_admin", "nickname").
 		All(&users); err != nil {
 		return
 	}
