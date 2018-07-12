@@ -116,7 +116,7 @@ func main() {
 	// Create indices
 	// 인덱스 값으로 email 을 사용하며, 그 값은 고유하다
 	if err = db.Copy().DB(handler.DBName).C(handler.USER).EnsureIndex(mgo.Index{
-		Key:    []string{"$text:email", "$text:nickname"},
+		Key:    []string{"email"},
 		Unique: true,
 	}); err != nil {
 		log.Fatal(err)
