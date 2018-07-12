@@ -100,7 +100,7 @@ func (h *Handler) UploadThumbnail(c echo.Context, s *model.Post, file *multipart
 	newFileName := realName + "_" + resultStr + resultInt + extension // 새로운 파일명 생성
 
 	// 정적 파일 루트 디렉터리 생성하기: 디렉터리가 없으면 생성할 것
-	temporaryPath, _ := filepath.Abs("../bin/")
+	temporaryPath, _ := filepath.Abs("./")
 	assetsPath := filepath.Join(temporaryPath, "/assets/")
 	if _, err := os.Stat(assetsPath); os.IsNotExist(err) {
 		os.Mkdir(assetsPath, 0777)
