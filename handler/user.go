@@ -2,15 +2,9 @@ package handler
 
 import (
 	// Default package
-	"os"
-	"fmt"
 	"net/http"
-	"net/smtp"
-	"path/filepath"
-	"crypto/sha256"
-	"io/ioutil"
-	"encoding/json"
 	"encoding/hex"
+	"crypto/sha256"
 	// Third-party package
 	"github.com/labstack/echo"
 	"github.com/globalsign/mgo"
@@ -19,58 +13,6 @@ import (
 	"github.com/backend/model"
 	"github.com/backend/utility"
 )
-
-type Account struct {
-	Email    string `json:"email"`
-	Password string `json:"password"`
-	Host     string `json:"host"`
-}
-
-func ReadSecretJson() Account {
-	// Read Secret JSON File
-	absPath, _ := filepath.Abs("./.secrets_email.json")
-	jsonFile, err := os.Open(absPath)
-	if err != nil {
-		fmt.Println(err)
-	}
-	defer jsonFile.Close()
-
-	// Account 구조체 변수 선언
-	var account Account
-
-	// JSON 파일을 읽어 byte 값을 account 변수의 주소에 넣는다
-	byteValue, _ := ioutil.ReadAll(jsonFile)
-	json.Unmarshal(byteValue, &account)
-
-	return account
-}
-
-func SendActivationEmail(a Account, t string) {
-	// 발신자의 SMTP 서버 Authentication
-	auth := smtp.PlainAuth("", a.Email, a.Password, a.Host)
-
-	// 발신자 주소: 썸띵모어 관리자
-	from := a.Email
-
-	// 수신자 주소: 가입자
-	to := []string{t}
-
-	// 본문
-	ToHeader := "To: " + t + "\r\n"
-	FromHeader := "From: " + a.Email + "\r\n"
-	Subject := "Subject: 썸띵모어 회원 가입 인증 메일\r\n"
-	Blank := "\r\n"
-	body := "축하합니다!\r\n"
-	msg := []byte(ToHeader + FromHeader + Subject + Blank + body)
-
-	// 메일 전송
-	err := smtp.SendMail(a.Host+":587", auth, from, to, msg)
-
-	// 에러 처리
-	if err != nil {
-		panic(err)
-	}
-}
 
 func HashPassword(p string) string {
 	// 패스워드를 SHA-256 알고리즘으로 암호화
@@ -126,10 +68,9 @@ func (h *Handler) SignUpNormal(c echo.Context) (err error) {
 		return
 	}
 
-	//// Sending Email
-	//info := ReadSecretJson()
-	//// go routine 을 사용한 비동기 처리
-	//go SendActivationEmail(info, u.Email)
+	// Sending Email
+	// go routine 을 사용한 비동기 처리
+	go utility.SendActivationEmail(c, u)
 
 	return c.JSON(http.StatusCreated, u)
 }
@@ -174,22 +115,28 @@ func (h *Handler) Activate(c echo.Context) (err error) {
 		return
 	}
 
+	// Find user email
+	userEmail := c.Param("user_email")
+
 	// Find user
 	db := h.DB.Clone()
 	defer db.Close()
 	if err = db.DB(DBName).C(USER).
-		Find(bson.M{"email": u.Email}).One(u); err != nil {
+		Find(bson.M{"email": userEmail}).One(u); err != nil {
 		if err == mgo.ErrNotFound {
-			return &echo.HTTPError{
-				Code:    http.StatusUnauthorized,
-				Message: "이메일이 올바르지 않습니다",
-			}
-			return
+			return echo.ErrNotFound
 		}
+		return
 	}
 
 	// Active user
-	u.IsActive = true
+	if err = db.DB(DBName).C(USER).
+		Update(
+		bson.M{"email": userEmail},
+		bson.M{"$set":
+		bson.M{"is_active": true}}); err != nil {
+		return
+	}
 
 	// 메인 페이지로 리다이렉트
 	return c.Redirect(http.StatusMovedPermanently, "http://localhost:3000")
@@ -219,6 +166,14 @@ func (h *Handler) SignIn(c echo.Context) (err error) {
 			}
 		}
 		return
+	}
+
+	// Validate activate
+	if u.IsActive == false {
+		return &echo.HTTPError{
+			Code: http.StatusUnauthorized,
+			Message: "회원 활성화가 되지 않았습니다. 계정 인증을 위해 이메일을 확인해주세요",
+		}
 	}
 
 	// Create JWT

@@ -64,7 +64,7 @@ func main() {
 				c.Path() == "/admin/" ||
 				c.Path() == "/sign-up/" ||
 				c.Path() == "/sign-in/" ||
-				c.Path() == "/activate/" ||
+				c.Path() == "/activate/:user_email" ||
 				c.Path() == "/authors/" ||
 				c.Path() == "/authors/:author_id" ||
 				c.Path() == "/authors/count/:author_id" ||
@@ -138,17 +138,17 @@ func main() {
 	})
 
 	// Route: User
-	e.POST("/sign-up/", h.SignUpNormal)    // 회원 가입
-	e.POST("/admin/", h.SignUpAdmin)       // 관리자 회원 가입
-	e.GET("/activate/", h.Activate)        // 이메일 회원 활성화
-	e.POST("/sign-in/", h.SignIn)          // 로그인
-	e.PATCH("/patch/", h.PatchPassword)    // 비밀번호 수정
-	e.PATCH("/nickname/", h.PatchNickname) // 닉네임 수정
-	e.DELETE("/destroy/", h.DestroyUser)   // 회원 탈퇴
+	e.POST("/sign-up/", h.SignUpNormal)        // 회원 가입
+	e.POST("/admin/", h.SignUpAdmin)           // 관리자 회원 가입
+	e.GET("/activate/:user_email", h.Activate) // 이메일 회원 활성화
+	e.POST("/sign-in/", h.SignIn)              // 로그인
+	e.PATCH("/patch/", h.PatchPassword)        // 비밀번호 수정
+	e.PATCH("/nickname/", h.PatchNickname)     // 닉네임 수정
+	e.DELETE("/destroy/", h.DestroyUser)       // 회원 탈퇴
 
 	// Route: Admin
-	e.GET("/users/", h.ListUsers)                   // 전체 유저 리스트
-	e.PATCH("/users/:user_email", h.UpdateUserAuth) // 유저
+	e.GET("/users/", h.ListUsers)                      // 전체 유저 리스트
+	e.PATCH("/users/:user_email", h.UpdateUserAuth)    // 유저
 	e.DELETE("/users/:user_email", h.ForceDestroyUser) // 유저 강제 탈퇴
 
 	// Route: Author
