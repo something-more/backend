@@ -168,6 +168,14 @@ func (h *Handler) SignIn(c echo.Context) (err error) {
 		return
 	}
 
+	// Validate activate
+	if u.IsActive == false {
+		return &echo.HTTPError{
+			Code: http.StatusUnauthorized,
+			Message: "회원 활성화가 되지 않았습니다. 계정 인증을 위해 이메일을 확인해주세요",
+		}
+	}
+
 	// Create JWT
 	token := utility.CreateJWT(u)
 
