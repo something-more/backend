@@ -37,7 +37,7 @@ type TemplateData struct {
 
 func ReadSecretJson() Account {
 	// Read Secret JSON File
-	absPath, _ := filepath.Abs("../src/github.com/backend/.secrets_email.json")
+	absPath, _ := filepath.Abs("./secrets/.secrets_email.json")
 	jsonFile, err := os.Open(absPath)
 	if err != nil {
 		fmt.Println(err)
@@ -110,7 +110,7 @@ func SendActivationEmail(c echo.Context, u *model.User) (err error) {
 	}
 
 	// Template File 경로 생성
-	templatePath, _ := filepath.Abs("../src/github.com/backend/templates/activate_account.html")
+	templatePath, _ := filepath.Abs("./templates/activate_account.html")
 
 	if err = r.ParseTemplate(templatePath, d); err == nil {
 		r.SendEmail(s.Host, auth)

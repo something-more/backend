@@ -87,7 +87,7 @@ func main() {
 	//-----------
 
 	// Read Secreat JSON File
-	absPath, _ := filepath.Abs("./.secrets_db.json")
+	absPath, _ := filepath.Abs("./secrets/.secrets_db.json")
 	jsonFile, err := os.Open(absPath)
 	defer jsonFile.Close()
 	if err != nil {
