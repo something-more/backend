@@ -150,7 +150,7 @@ func (h *Handler) Activate(c echo.Context) (err error) {
 	}
 
 	// 메인 페이지로 리다이렉트
-	return c.Redirect(http.StatusMovedPermanently, "http://localhost:3000")
+	return c.Redirect(http.StatusMovedPermanently, "https://www.somethingmore.co.kr")
 }
 
 func (h *Handler) SignIn(c echo.Context) (err error) {
