@@ -1,8 +1,7 @@
 package handler
 
 import (
-	// Default package
-	"sync"
+
 	"net/http"
 	"encoding/hex"
 	"crypto/sha256"
@@ -69,19 +68,21 @@ func (h *Handler) SignUpNormal(c echo.Context) (err error) {
 		return
 	}
 
-	// Sending Email
-	// WaitGroup 생성, 1개의 go routine 기다림
-	var wait sync.WaitGroup
-	wait.Add(1)
+	utility.SendActivationEmail(c, u)
 
-	// go routine 을 사용한 비동기 처리
-	// 비동기 익명 함수 안에서 이메일 전송 함수 실행
-	go func() {
-		defer wait.Done() // 함수 실행이 끝나면 WaitGroup 에 함수 실행이 끝났음을 알림
-		utility.SendActivationEmail(c, u)
-	}()
-
-	wait.Wait() // go routine 모두 끝날 때까지 대기
+	//// Sending Email
+	//// WaitGroup 생성, 1개의 go routine 기다림
+	//var wait sync.WaitGroup
+	//wait.Add(1)
+	//
+	//// go routine 을 사용한 비동기 처리
+	//// 비동기 익명 함수 안에서 이메일 전송 함수 실행
+	//go func() {
+	//	defer wait.Done() // 함수 실행이 끝나면 WaitGroup 에 함수 실행이 끝났음을 알림
+	//
+	//}()
+	//
+	//wait.Wait() // go routine 모두 끝날 때까지 대기
 
 	return c.JSON(http.StatusCreated, u)
 }
