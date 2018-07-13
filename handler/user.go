@@ -2,6 +2,7 @@ package handler
 
 import (
 	// Default package
+	"sync"
 	"net/http"
 	"encoding/hex"
 	"crypto/sha256"
@@ -69,8 +70,14 @@ func (h *Handler) SignUpNormal(c echo.Context) (err error) {
 	}
 
 	// Sending Email
+	// WaitGroup 생성, 1개의 go routine 기다림
+	var wait sync.WaitGroup
+	wait.Add(1)
+
 	// go routine 을 사용한 비동기 처리
 	go utility.SendActivationEmail(c, u)
+
+	wait.Wait() // go routine 모두 끝날 때까지 대기
 
 	return c.JSON(http.StatusCreated, u)
 }
