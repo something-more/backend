@@ -75,7 +75,11 @@ func (h *Handler) SignUpNormal(c echo.Context) (err error) {
 	wait.Add(1)
 
 	// go routine 을 사용한 비동기 처리
-	go utility.SendActivationEmail(c, u)
+	// 비동기 익명 함수 안에서 이메일 전송 함수 실행
+	go func() {
+		defer wait.Done() // 함수 실행이 끝나면 WaitGroup 에 함수 실행이 끝났음을 알림
+		utility.SendActivationEmail(c, u)
+	}()
 
 	wait.Wait() // go routine 모두 끝날 때까지 대기
 
