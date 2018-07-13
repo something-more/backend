@@ -57,11 +57,11 @@ func ReadSecretJson() Account {
 func (r *Request) ParseTemplate(name string, data interface{}) (err error) {
 	t, err := template.ParseFiles(name)
 	if err != nil {
-		return
+		return err
 	}
 	buf := new(bytes.Buffer)
 	if err = t.Execute(buf, data); err != nil {
-		return
+		return err
 	}
 	r.Body = buf.String()
 	return
@@ -112,8 +112,12 @@ func SendActivationEmail(c echo.Context, u *model.User) (err error) {
 	// Template File 경로 생성
 	templatePath, _ := filepath.Abs("../src/github.com/backend/templates/activate_account.html")
 
-	if err = r.ParseTemplate(templatePath, d); err == nil {
-		r.SendEmail(s.Host, auth)
+	if err = r.ParseTemplate(templatePath, d); err != nil {
+		return err
 	}
+	if _, err := r.SendEmail(s.Host, auth); err != nil {
+		return err
+	}
+
 	return
 }
