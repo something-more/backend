@@ -33,6 +33,7 @@ type TemplateData struct {
 	Title    string // 이메일 주소
 	Nickname string // 유저 닉네임
 	URL      string // Activate 주소
+	Password string // 초기화된 패스워드
 }
 
 func ReadSecretJson() Account {
@@ -111,6 +112,40 @@ func SendActivationEmail(c echo.Context, u *model.User) (err error) {
 
 	// Template File 경로 생성
 	templatePath, _ := filepath.Abs("./templates/activate_account.html")
+
+	if err = r.ParseTemplate(templatePath, d); err != nil {
+		return err
+	}
+	if _, err := r.SendEmail(s.Host, auth); err != nil {
+		return err
+	}
+
+	return
+}
+
+func SendResetPasswordEmail(u *model.User) (err error) {
+	// Secret json 읽기
+	s := ReadSecretJson()
+
+	// 발신자의 SMTP 서버 Authentication
+	auth := smtp.PlainAuth("", s.Email, s.Password, s.Host)
+
+	// Request 객체 생성
+	r := &Request{
+		From:    s.Email,            // 발신자 주소: 썸띵모어 관리자
+		To:      []string{u.Email},  // 수신자 주소: 가입자
+		Subject: "썸띵모어 패스워드 초기화 안내 메일", // 메일 제목
+	}
+
+	// TemplateData 객체 생성
+	d := &TemplateData{
+		Title:    r.Subject,
+		Nickname: u.Nickname,
+		Password: u.Password,
+	}
+
+	// Template File 경로 생성
+	templatePath, _ := filepath.Abs("../src/github.com/backend/templates/reset_password.html")
 
 	if err = r.ParseTemplate(templatePath, d); err != nil {
 		return err
