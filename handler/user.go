@@ -2,6 +2,8 @@ package handler
 
 import (
 	// Default package
+	"strconv"
+	"math/rand"
 	"net/http"
 	"encoding/hex"
 	"crypto/sha256"
@@ -290,6 +292,50 @@ func (h *Handler) PatchNickname(c echo.Context) (err error) {
 	}
 
 	return c.JSON(http.StatusOK, u.Token)
+}
+
+func (h *Handler) ResetPassword(c echo.Context) (err error) {
+	// Bind object
+	u := new(model.User)
+	if err = c.Bind(u); err != nil {
+		return
+	}
+
+	// Find user email
+	userEmail := c.Param("user_email")
+
+	// Find user
+	db := h.DB.Clone()
+	defer db.Close()
+	if err = db.DB(DBName).C(USER).
+		Find(bson.M{"email": userEmail}).One(u); err != nil {
+		if err == mgo.ErrNotFound {
+			return echo.ErrNotFound
+		}
+		return
+	}
+
+	// 난수 생성
+	// 100000 이하의 정수를 랜덤으로 생성해 문자열로 변환
+	randomPassword := strconv.FormatInt(rand.Int63n(100000), 10)
+	hashedPassword := HashPassword(randomPassword) // 패스워드 해쉬
+
+	// Update password
+	u.Password = randomPassword // 난수로 생성된 패스워드를 User 모델에 덮어 씌움
+
+	// Update DB
+	if err = db.DB(DBName).C(USER).
+		Update(
+		bson.M{"email": u.Email},
+		bson.M{"$set":
+		bson.M{"password": hashedPassword}}); err != nil {
+		return
+	}
+
+	// Sending Email
+	go utility.SendResetPasswordEmail(u)
+
+	return c.NoContent(http.StatusOK)
 }
 
 func (h *Handler) DestroyUser(c echo.Context) (err error) {
