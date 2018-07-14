@@ -65,6 +65,7 @@ func main() {
 				c.Path() == "/sign-up/" ||
 				c.Path() == "/sign-in/" ||
 				c.Path() == "/activate/:user_email" ||
+				c.Path() == "/reset/:user_email" ||
 				c.Path() == "/authors/" ||
 				c.Path() == "/authors/:author_id" ||
 				c.Path() == "/authors/count/:author_id" ||
@@ -145,6 +146,7 @@ func main() {
 	e.PATCH("/patch/", h.PatchPassword)        // 비밀번호 수정
 	e.PATCH("/nickname/", h.PatchNickname)     // 닉네임 수정
 	e.DELETE("/destroy/", h.DestroyUser)       // 회원 탈퇴
+	e.GET("/reset/:user_email", h.ResetPassword) // 비밀번호 초기화
 
 	// Route: Admin
 	e.GET("/users/", h.ListUsers)                      // 전체 유저 리스트
